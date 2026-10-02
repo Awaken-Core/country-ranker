@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "@/components/provider";
-import { siteUrl } from "@/lib/site";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -18,7 +17,6 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
   title: "MehulxDesign - A collection of cool design by Mehul Prajapati!",
   description: "A collection of cool design by Mehul Prajapati!",
 };

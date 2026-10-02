@@ -13,7 +13,7 @@ if (!connectionString && process.env.NODE_ENV === "production") {
 }
 
 const adapter = new PrismaPg({
-    connectionString: connectionString || "postgresql://postgres:postgres@localhost:5432/postgres"
+    connectionString: connectionString || "postgresql://postgres:postgres@localhost:5433/postgres"
 });
 
 export const client = globalForPrisma.prisma ?? new PrismaClient({ adapter });
