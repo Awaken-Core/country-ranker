@@ -1,0 +1,19 @@
+# MehulxDesign
+
+> A curated collection of interface, landing-page, brand, and product design work by Mehul Prajapati.
+
+## Main page
+
+- [Selected designs](https://design.mehulxbuilds.in/): Browse Mehul's published design portfolio and project descriptions.
+
+## About
+
+Mehul Prajapati is a designer and developer helping startups turn visitors into loyal customers through visual design, product thinking, and development.
+
+## Contact
+
+- [Portfolio](https://mehulxbuilds.in/)
+- [GitHub](https://github.com/MehulxBuilds)
+- [LinkedIn](https://www.linkedin.com/in/mehul-prajapati-816b28315/)
+- [Twitter (X)](https://x.com/MehulxBuilds/)
+- [Email](mailto:mehulprajapati7456e@gmail.com)

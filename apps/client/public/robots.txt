@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /access
+Disallow: /dashboard
+Disallow: /api/
+
+Sitemap: https://design.mehulxbuilds.in/sitemap.xml
+Host: https://design.mehulxbuilds.in

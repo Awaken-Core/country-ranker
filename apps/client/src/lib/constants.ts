@@ -1,0 +1,1 @@
+export const uploadthingsURI = "https://utfs.io";
