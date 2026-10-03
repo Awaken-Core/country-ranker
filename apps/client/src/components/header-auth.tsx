@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -28,11 +28,16 @@ import { signIn, signOut, signUp, useSession } from "@/lib/auth-client";
 import { GoogleIcon } from "@/components/auth/google-svg";
 
 export function HeaderAuth() {
+  const [mounted, setMounted] = useState(false);
   const { data: session, isPending: isSessionPending } = useSession();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isLogin = mode === "login";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const initials =
     session?.user.name
@@ -92,15 +97,18 @@ export function HeaderAuth() {
     }
   };
 
+  if (!mounted) {
+    return (
+      <div className="flex items-center gap-3">
+        <Button variant="outline" size="sm" className="rounded-full px-4 text-xs font-medium opacity-60">
+          Sign in
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-3">
-      <Link
-        href="/countries"
-        className="text-xs text-muted-foreground hover:text-foreground transition-colors mr-1"
-      >
-        All Countries
-      </Link>
-
       {isSessionPending ? (
         <Button variant="outline" size="sm" disabled>
           Loading…
