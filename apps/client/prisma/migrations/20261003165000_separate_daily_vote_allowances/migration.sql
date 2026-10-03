@@ -1,3 +1,0 @@
-ALTER TABLE "daily_vote_usage"
-  ADD COLUMN "upvoteUsedCount" INTEGER NOT NULL DEFAULT 0,
-  ADD COLUMN "downvoteUsedCount" INTEGER NOT NULL DEFAULT 0;
