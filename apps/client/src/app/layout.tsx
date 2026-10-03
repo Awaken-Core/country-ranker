@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MehulxDesign - A collection of cool design by Mehul Prajapati!",
-  description: "A collection of cool design by Mehul Prajapati!",
+  title: "CountryRank - Global Country Leaderboard & Standing",
+  description: "Realtime global sovereign rankings and country leaderboard database.",
 };
 
 export default function RootLayout({
@@ -27,9 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
+    <html lang="en" className={cn(inter.variable, geistMono.variable)} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="font-sans antialiased bg-[#080808] text-[#F5F5F5]"
+        suppressHydrationWarning
       >
          <Providers>{children}</Providers>
       </body>

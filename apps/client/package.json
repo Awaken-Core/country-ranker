@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "cross-env SKIP_ENV_VALIDATION=true tsx --test test/country-ranking.test.ts",
+    "db:seed": "tsx prisma/seed.ts",
     "keygen": "bun run scripts/key-gen.ts",
     "preinstall": "prisma generate"
   },
@@ -34,6 +36,7 @@
     "date-fns": "^4.4.0",
     "dropzone": "^6.0.0-beta.2",
     "embla-carousel-react": "^8.6.0",
+    "flag-icons": "^7.5.0",
     "input-otp": "^1.4.2",
     "lenis": "^1.3.25",
     "lucide-react": "^1.18.0",

@@ -109,7 +109,8 @@ model Verification {
 model Country {
   id                 String            @id @default(uuid())
   code               String            @unique
-  flag               String
+  slug               String            @unique
+  flag               String            @default("")
   name               String
   totalUpvoteCount   BigInt            @default(0) // never negative
   totalDownvoteCount BigInt            @default(0) // never negative
@@ -120,6 +121,7 @@ model Country {
   voteLogs           VoteLog[]
   sponsors           Sponsor[]
 
+  @@index([totalUpvoteCount(sort: Desc), id])
   @@map("country_code")
 }
 
