@@ -37,22 +37,24 @@ enum NotificationType {
 }
 
 model User {
-  id                String             @id
-  name              String
-  email             String
-  emailVerified     Boolean            @default(false)
-  image             String?
-  role              UserRole           @default(USER)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  sessions          Session[]
-  accounts          Account[]
-  userPaymentLogs   UserPaymentLog[]
-  payments          Payment[]
-  voteLogs          VoteLog[]
-  pushNotifications PushNotification[]
-  countryVoteFrees  CountryVoteFree[]
-  countryVotePaids  CountryVotePaid[]
+  id                  String               @id
+  name                String
+  email               String
+  emailVerified       Boolean              @default(false)
+  image               String?
+  role                UserRole             @default(USER)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  sessions            Session[]
+  accounts            Account[]
+  userPaymentLogs     UserPaymentLog[]
+  payments            Payment[]
+  voteLogs            VoteLog[]
+  pushNotifications   PushNotification[]
+  countryVoteFrees    CountryVoteFree[]
+  countryVotePaids    CountryVotePaid[]
+  dailyVoteUsage      DailyVoteUsage[]
+  purchasedVoteGrants PurchasedVoteGrant[]
 
   @@unique([email])
   @@map("user")
@@ -127,11 +129,13 @@ model Country {
 
 // This is a append only log
 model CountryVoteFree {
-  id                String            @id @default(uuid())
-  count             Int               @default(0)
-  voteType          VoteType
-  countryId         String
-  userId            String // vote by userId
+  id        String   @id @default(uuid())
+  count     Int      @default(0)
+  voteType  VoteType
+  countryId String
+  userId    String // vote by userId
+  voteLogId String?  @unique
+  voteLog   VoteLog? @relation(fields: [voteLogId], references: [id], onDelete: Restrict)
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
   country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
@@ -146,11 +150,14 @@ model CountryVoteFree {
 
 // This is a append only log
 model CountryVotePaid {
-  id                String            @id @default(uuid())
-  count             Int               @default(0)
-  voteType          VoteType
-  countryId         String
-  userId            String // vote by userId
+  id          String                    @id @default(uuid())
+  count       Int                       @default(0)
+  voteType    VoteType
+  countryId   String
+  userId      String // vote by userId
+  voteLogId   String?                   @unique
+  voteLog     VoteLog?                  @relation(fields: [voteLogId], references: [id], onDelete: Restrict)
+  allocations PurchasedVoteAllocation[]
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
   country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
@@ -172,6 +179,10 @@ model VoteLog {
   voteIntentionType VoteIntentionType
   countryId         String
   userId            String // vote by userId
+  requestId         String?           @unique
+  result            Json?
+  freeDetail        CountryVoteFree?
+  paidDetail        CountryVotePaid?
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
   country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
@@ -232,6 +243,7 @@ model Payment {
   amount        Decimal       @db.Decimal(10, 2)
   currency      String        @default("USD")
   status        PaymentStatus @default(PENDING)
+  voteQuantity  Int? // Snapshotted by trusted checkout code; never inferred from amount.
   createdAt     DateTime      @default(now()) @db.Timestamptz
   updatedAt     DateTime      @updatedAt @db.Timestamptz
 
@@ -239,6 +251,7 @@ model Payment {
 
   transaction    PaymentTransaction?
   userPaymentLog UserPaymentLog?
+  voteGrant      PurchasedVoteGrant?
 
   @@index([userId])
 }
@@ -273,4 +286,55 @@ model PushNotification {
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+}
+
+model DailyVoteUsage {
+  id        String   @id @default(uuid())
+  userId    String
+  voteDate  DateTime @db.Date
+  usedCount Int      @default(0)
+  upvoteUsedCount Int @default(0)
+  downvoteUsedCount Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, voteDate])
+  @@map("daily_vote_usage")
+}
+
+model PurchasedVoteGrant {
+  id             String                    @id @default(uuid())
+  userId         String
+  paymentId      String                    @unique @db.Uuid
+  grantedVotes   Int
+  remainingVotes Int
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  user           User                      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  payment        Payment                   @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  allocations    PurchasedVoteAllocation[]
+
+  @@index([userId])
+  @@map("purchased_vote_grant")
+}
+
+model PurchasedVoteAllocation {
+  id         String             @id @default(uuid())
+  paidVoteId String
+  grantId    String
+  count      Int
+  paidVote   CountryVotePaid    @relation(fields: [paidVoteId], references: [id], onDelete: Restrict)
+  grant      PurchasedVoteGrant @relation(fields: [grantId], references: [id], onDelete: Restrict)
+
+  @@unique([paidVoteId, grantId])
+  @@map("purchased_vote_allocation")
+}
+
+model VoteRateLimit {
+  key         String   @id
+  windowStart DateTime
+  attempts    Int
+
+  @@map("vote_rate_limit")
 }

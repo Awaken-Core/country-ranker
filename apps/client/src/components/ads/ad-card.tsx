@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "motion/react";
 import { AdItem } from "./ad-data";
 import { cn } from "@/lib/utils";
 
@@ -9,9 +12,11 @@ interface AdCardProps {
 
 export const AdCard: React.FC<AdCardProps> = ({ ad, className }) => {
   return (
-    <div
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.12, ease: "easeOut" }}
       className={cn(
-        "group relative flex flex-col items-center justify-between text-center px-3 py-2.5 rounded-lg border transition-all duration-150 cursor-pointer flex-1 min-h-0",
+        "group relative flex flex-col items-center justify-between text-center px-3 py-2.5 rounded-lg border transition-colors cursor-pointer flex-1 min-h-0 will-change-transform",
         ad.cardBg || "bg-[#101010] hover:border-white/20",
         ad.accentColor || "border-white/[0.08]",
         className
@@ -50,6 +55,6 @@ export const AdCard: React.FC<AdCardProps> = ({ ad, className }) => {
           Promoted ↗
         </span>
       )}
-    </div>
+    </motion.div>
   );
 };
