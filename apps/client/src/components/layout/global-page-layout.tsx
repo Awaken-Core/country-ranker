@@ -8,7 +8,10 @@ interface GlobalPageLayoutProps {
 
 export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({ children }) => {
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#080808] text-[#F5F5F5] flex flex-col font-sans">
+    <div
+      className="h-screen w-screen overflow-hidden bg-[#080808] text-[#F5F5F5] flex flex-col font-sans"
+      suppressHydrationWarning
+    >
       {/* 1. Header (Fixed 56px) */}
       <SiteHeader />
 
