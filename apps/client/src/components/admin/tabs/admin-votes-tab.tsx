@@ -16,6 +16,7 @@ export function AdminVotesTab() {
     data: logsData,
     isLoading,
     isRefetching,
+    error,
     refetch,
   } = useQuery({
     queryKey: [
@@ -33,10 +34,15 @@ export function AdminVotesTab() {
       query.set("limit", "100");
 
       const res = await fetch(`/api/v1/admin/votes?${query.toString()}`);
-      if (!res.ok) throw new Error("Failed to load vote ledger");
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        throw new Error(errJson?.error || errJson?.message || `Failed to load vote ledger (${res.status})`);
+      }
       const json = await res.json();
       return (json.logs ?? []) as VoteLogItem[];
     },
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
   });
 
   const logs = logsData ?? [];
@@ -100,6 +106,13 @@ export function AdminVotesTab() {
                   <td colSpan={6} className="py-12 text-center text-zinc-500">
                     <Loader2 className="size-5 animate-spin mx-auto mb-2 text-zinc-400" />
                     Loading voting ledger…
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={6} className="py-10 text-center text-red-400">
+                    <div className="font-semibold mb-1">Failed to load voting ledger</div>
+                    <div className="text-[11px] text-zinc-500 font-mono">{(error as Error).message}</div>
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
