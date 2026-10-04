@@ -33,10 +33,18 @@ export function HeaderAuth() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const isLogin = mode === "login";
 
   useEffect(() => {
     setMounted(true);
+    const openSignIn = () => {
+      setMode("login");
+      setError(null);
+      setIsOpen(true);
+    };
+    window.addEventListener("country-rank:open-sign-in", openSignIn);
+    return () => window.removeEventListener("country-rank:open-sign-in", openSignIn);
   }, []);
 
   const initials =
@@ -138,7 +146,7 @@ export function HeaderAuth() {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="rounded-full px-4 text-xs font-medium">
               Sign in
