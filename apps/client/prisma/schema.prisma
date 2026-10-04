@@ -9,6 +9,18 @@ datasource db {
 enum UserRole {
   USER
   ADMIN
+  SUPER_ADMIN
+}
+
+enum AdminPermission {
+  MANAGE_ADMINS
+  COUNTRIES_VIEW
+  COUNTRIES_EDIT
+  VOTES_VIEW
+  VOTES_ADJUST
+  USERS_VIEW
+  USERS_MANAGE
+  AUDIT_LOGS_VIEW
 }
 
 enum PaymentStatus {
@@ -55,6 +67,8 @@ model User {
   countryVotePaids    CountryVotePaid[]
   dailyVoteUsage      DailyVoteUsage[]
   purchasedVoteGrants PurchasedVoteGrant[]
+  permissions         UserAdminPermission[]
+  auditLogs           AuditLog[]
 
   @@unique([email])
   @@map("user")
@@ -337,4 +351,35 @@ model VoteRateLimit {
   attempts    Int
 
   @@map("vote_rate_limit")
+}
+
+model UserAdminPermission {
+  id         String          @id @default(uuid())
+  userId     String
+  permission AdminPermission
+  createdAt  DateTime        @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permission])
+  @@index([userId])
+  @@map("user_admin_permission")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  targetType String
+  targetId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_log")
 }

@@ -140,6 +140,14 @@ export function HeaderAuth() {
               <p className="truncate font-normal text-muted-foreground text-xs">{session.user.email}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {((session.user as any).role === "ADMIN" ||
+              (session.user as any).role === "SUPER_ADMIN") && (
+              <DropdownMenuItem asChild>
+                <Link href="/admin" className="cursor-pointer text-xs">
+                  Admin Console
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem variant="destructive" onSelect={() => void signOut()}>
               Sign out
             </DropdownMenuItem>
