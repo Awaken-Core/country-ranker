@@ -7,10 +7,15 @@ import { AdminPermission, UserRole } from "@/modules/admin/admin.types";
 export async function GET(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
-    if (!session?.user) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+    if (!session?.user)
+      return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
     const authCheck = await adminService.verifyAccess(session.user.id);
-    if (!authCheck.authorized) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    if (!authCheck.authorized)
+      return NextResponse.json(
+        { error: authCheck.error },
+        { status: authCheck.status },
+      );
 
     const url = new URL(request.url);
     const search = url.searchParams.get("search") || undefined;
@@ -28,14 +33,18 @@ export async function GET(request: Request) {
     return NextResponse.json(result);
   } catch (error) {
     console.error("Failed to fetch admin users:", error);
-    return NextResponse.json({ error: "INTERNAL_SERVER_ERROR" }, { status: 500 });
+    return NextResponse.json(
+      { error: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
-    if (!session?.user) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+    if (!session?.user)
+      return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
     const body = await request.json();
     const { action, targetUserId, permissions } = body as {
@@ -45,11 +54,18 @@ export async function POST(request: Request) {
     };
 
     if (!targetUserId || !action) {
-      return NextResponse.json({ error: "MISSING_REQUIRED_FIELDS" }, { status: 400 });
+      return NextResponse.json(
+        { error: "MISSING_REQUIRED_FIELDS" },
+        { status: 400 },
+      );
     }
 
     if (action === "CREATE_ADMIN") {
-      const res = await adminService.createAdmin(session.user.id, targetUserId, permissions || []);
+      const res = await adminService.createAdmin(
+        session.user.id,
+        targetUserId,
+        permissions || [],
+      );
       return NextResponse.json({ success: true, data: res });
     }
 
@@ -59,13 +75,20 @@ export async function POST(request: Request) {
     }
 
     if (action === "SET_PERMISSIONS") {
-      const res = await adminService.setPermissions(session.user.id, targetUserId, permissions || []);
+      const res = await adminService.setPermissions(
+        session.user.id,
+        targetUserId,
+        permissions || [],
+      );
       return NextResponse.json({ success: true, data: res });
     }
 
     return NextResponse.json({ error: "INVALID_ACTION" }, { status: 400 });
   } catch (error: any) {
     console.error("Admin user action error:", error);
-    return NextResponse.json({ error: error.message || "INTERNAL_SERVER_ERROR" }, { status: 400 });
+    return NextResponse.json(
+      { error: error.message || "INTERNAL_SERVER_ERROR" },
+      { status: 400 },
+    );
   }
 }

@@ -22,7 +22,12 @@ export class AdminRepository {
     });
   }
 
-  async getAllUsers(params?: { search?: string; role?: UserRole; skip?: number; take?: number }) {
+  async getAllUsers(params?: {
+    search?: string;
+    role?: UserRole;
+    skip?: number;
+    take?: number;
+  }) {
     const where: any = {};
     if (params?.search) {
       const q = params.search.trim();
@@ -123,7 +128,7 @@ export class AdminRepository {
   async adjustCountryVotes(
     countryId: string,
     upvotesDelta: number,
-    downvotesDelta: number
+    downvotesDelta: number,
   ) {
     return client.$transaction(async (tx) => {
       const current = await tx.country.findUnique({
@@ -174,7 +179,10 @@ export class AdminRepository {
     });
   }
 
-  async updateCountryDetails(countryId: string, data: { name?: string; flag?: string }) {
+  async updateCountryDetails(
+    countryId: string,
+    data: { name?: string; flag?: string },
+  ) {
     return client.country.update({
       where: { id: countryId },
       data,
@@ -286,7 +294,11 @@ export class AdminRepository {
     }
   }
 
-  async getAuditLogs(params?: { search?: string; skip?: number; take?: number }) {
+  async getAuditLogs(params?: {
+    search?: string;
+    skip?: number;
+    take?: number;
+  }) {
     const where: any = {};
     if (params?.search) {
       const q = params.search.trim();

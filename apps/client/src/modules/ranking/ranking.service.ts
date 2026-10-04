@@ -15,7 +15,11 @@ export class RankingService {
 
     try {
       const [items, total] = await Promise.all([
-        this.repo.getRankedCountries({ search: params?.search, skip, take: limit }),
+        this.repo.getRankedCountries({
+          search: params?.search,
+          skip,
+          take: limit,
+        }),
         this.repo.count({ search: params?.search }),
       ]);
 
@@ -43,7 +47,10 @@ export class RankingService {
         },
       };
     } catch (error) {
-      console.warn("Could not fetch rankings from DB (offline or building):", error);
+      console.warn(
+        "Could not fetch rankings from DB (offline or building):",
+        error,
+      );
       return {
         data: [],
         pagination: {

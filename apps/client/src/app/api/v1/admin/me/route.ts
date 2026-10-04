@@ -10,13 +10,21 @@ export async function GET(request: Request) {
     }
 
     const context = await adminService.getAdminContext(session.user.id);
-    if (!context || (context.role !== "ADMIN" && context.role !== "SUPER_ADMIN")) {
+    if (
+      !context ||
+      (context.role !== "ADMIN" && context.role !== "SUPER_ADMIN")
+    ) {
       return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
     }
 
-    return NextResponse.json(context, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json(context, {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     console.error("Failed to get admin session:", error);
-    return NextResponse.json({ error: "INTERNAL_SERVER_ERROR" }, { status: 500 });
+    return NextResponse.json(
+      { error: "INTERNAL_SERVER_ERROR" },
+      { status: 500 },
+    );
   }
 }

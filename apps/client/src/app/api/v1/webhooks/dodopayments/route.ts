@@ -7,11 +7,12 @@ import { dodopayments } from "@/lib/dodopayments";
 export const runtime = "nodejs";
 
 function readMetadata(data: unknown) {
-  if (!data || typeof data !== "object" || !("metadata" in data)) return {} as Record<string, string>;
+  if (!data || typeof data !== "object" || !("metadata" in data))
+    return {} as Record<string, string>;
   const metadata = data.metadata;
   return metadata && typeof metadata === "object"
-    ? metadata as Record<string, string>
-    : {} as Record<string, string>;
+    ? (metadata as Record<string, string>)
+    : ({} as Record<string, string>);
 }
 
 export async function POST(request: Request) {
@@ -21,7 +22,10 @@ export async function POST(request: Request) {
   const webhookTimestamp = request.headers.get("webhook-timestamp");
 
   if (!webhookId || !webhookSignature || !webhookTimestamp) {
-    return NextResponse.json({ error: "Missing webhook headers." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing webhook headers." },
+      { status: 400 },
+    );
   }
 
   let event: ReturnType<typeof dodopayments.webhooks.unwrap>;
@@ -34,10 +38,15 @@ export async function POST(request: Request) {
       },
     });
   } catch {
-    return NextResponse.json({ error: "Invalid webhook signature." }, { status: 401 });
+    return NextResponse.json(
+      { error: "Invalid webhook signature." },
+      { status: 401 },
+    );
   }
 
-  const existing = await client.dodoWebhookEvent.findUnique({ where: { eventId: webhookId } });
+  const existing = await client.dodoWebhookEvent.findUnique({
+    where: { eventId: webhookId },
+  });
   if (existing?.processed) return NextResponse.json({ received: true });
 
   await client.dodoWebhookEvent.upsert({
@@ -57,7 +66,12 @@ export async function POST(request: Request) {
       const pricingId = metadata.pricing_id;
       const localPaymentId = metadata.local_payment_id;
 
-      if (event.type === "payment.succeeded" && userId && pricingId && localPaymentId) {
+      if (
+        event.type === "payment.succeeded" &&
+        userId &&
+        pricingId &&
+        localPaymentId
+      ) {
         const payment = await tx.payment.findFirst({
           where: {
             id: localPaymentId,
@@ -80,7 +94,10 @@ export async function POST(request: Request) {
             create: { userId, totalCredits: pricing.credits },
           });
 
-          await tx.user.update({ where: { id: userId }, data: { isPremium: true } });
+          await tx.user.update({
+            where: { id: userId },
+            data: { isPremium: true },
+          });
           await tx.userPurchaseLog.create({
             data: {
               userId,
@@ -117,6 +134,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("Dodo Payments webhook processing failed", error);
-    return NextResponse.json({ error: "Webhook processing failed." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook processing failed." },
+      { status: 500 },
+    );
   }
 }
