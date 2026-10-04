@@ -134,7 +134,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ initialRankings }) => 
         <div className="shrink-0 grid grid-cols-12 px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[10px] uppercase tracking-wider text-zinc-500">
           <div className="col-span-2 sm:col-span-1"># Rank</div>
           <div className="col-span-6 sm:col-span-7">Country</div>
-          <div className="col-span-2 text-right">Votes</div>
+          <div className="col-span-2 text-right">Score</div>
           <div className="col-span-2 text-right">Vote</div>
         </div>
 

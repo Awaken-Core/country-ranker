@@ -17,7 +17,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
   rankedCountry,
   className,
 }) => {
-  const { rank, country, upvotes } = rankedCountry;
+  const { rank, country, score } = rankedCountry;
   const [hasMessage, setHasMessage] = useState(false);
 
   const isGold = rank === 1;
@@ -75,7 +75,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       {/* Vote Count (cols 9-10) */}
       <div className="col-span-2 flex items-center justify-end">
         <span className="font-mono text-xs font-semibold text-zinc-300 group-hover:text-white tabular-nums transition-colors">
-          {upvotes.toLocaleString()}
+          {score.toLocaleString()}
         </span>
       </div>
 
