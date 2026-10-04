@@ -9,8 +9,7 @@
     "lint": "eslint",
     "test": "cross-env SKIP_ENV_VALIDATION=true tsx --test test/country-ranking.test.ts",
     "db:seed": "tsx prisma/seed.ts",
-    "keygen": "bun run scripts/key-gen.ts",
-    "preinstall": "prisma generate"
+    "keygen": "bun run scripts/key-gen.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -19,6 +18,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@dodopayments/nextjs": "^0.3.9",
     "@hugeicons/core-free-icons": "^4.2.0",
     "@hugeicons/react": "^1.1.6",
     "@t3-oss/env-nextjs": "^0.13.11",
@@ -34,6 +34,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.4.0",
+    "dodopayments": "^2.52.0",
     "dropzone": "^6.0.0-beta.2",
     "embla-carousel-react": "^8.6.0",
     "flag-icons": "^7.5.0",

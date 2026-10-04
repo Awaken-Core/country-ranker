@@ -8,6 +8,9 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
     BETTER_AUTH_SECRET: z.string().min(1),
+    DODO_PAYMENTS_ENVIRONMENT: z.string().min(1),
+    DODO_PAYMENTS_API_KEY: z.string().min(1),
+    DODO_PAYMENTS_WEBHOOK_KEY: z.string().min(1),
     UPLOADTHING_TOKEN: z.string().optional(),
     // Set to "true" to require email verification before a user can vote.
     VOTING_REQUIRE_VERIFIED_EMAIL: z.string().optional(),
