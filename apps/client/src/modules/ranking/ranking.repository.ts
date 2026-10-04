@@ -3,9 +3,8 @@ import { Prisma } from "@prisma/client";
 
 export class RankingRepository {
   /**
-   * Returns countries ordered deterministically:
-   * Higher totalUpvoteCount first.
-   * On tie, secondary deterministic ordering by id ASC.
+   * Calculates the net score in memory from the two immutable aggregate
+   * counters. No derived score is stored in the database.
    */
   async getRankedCountries(params?: {
     search?: string;
@@ -13,24 +12,18 @@ export class RankingRepository {
     take?: number;
   }) {
     const where: Prisma.CountryWhereInput = {};
-
-    if (params?.search) {
-      const q = params.search.trim();
+    const q = params?.search?.trim();
+    if (q) {
       where.OR = [
         { name: { contains: q, mode: "insensitive" } },
         { code: { contains: q, mode: "insensitive" } },
         { slug: { contains: q, mode: "insensitive" } },
       ];
     }
-
-    return client.country.findMany({
+    const skip = params?.skip ?? 0;
+    const take = params?.take ?? Number.MAX_SAFE_INTEGER;
+    const countries = await client.country.findMany({
       where,
-      skip: params?.skip,
-      take: params?.take,
-      orderBy: [
-        { totalUpvoteCount: "desc" },
-        { id: "asc" },
-      ],
       select: {
         id: true,
         name: true,
@@ -41,6 +34,15 @@ export class RankingRepository {
         totalDownvoteCount: true,
       },
     });
+
+    countries.sort((a, b) => {
+      const aScore = a.totalUpvoteCount - a.totalDownvoteCount;
+      const bScore = b.totalUpvoteCount - b.totalDownvoteCount;
+      if (aScore !== bScore) return aScore > bScore ? -1 : 1;
+      return a.id.localeCompare(b.id);
+    });
+
+    return countries.slice(skip, skip + take);
   }
 
   async count(params?: { search?: string }) {
@@ -56,36 +58,11 @@ export class RankingRepository {
     return client.country.count({ where });
   }
 
-  /**
-   * Calculates the 1-based rank of a country based on:
-   * higher totalUpvoteCount, or equal totalUpvoteCount and smaller id.
-   */
+  /** Calculates a 1-based rank using the same in-memory net-score ordering. */
   async getCountryRankById(id: string) {
-    const country = await client.country.findUnique({
-      where: { id },
-      select: { id: true, totalUpvoteCount: true },
-    });
-
-    if (!country) return null;
-
-    // Count how many countries rank strictly ahead of this country:
-    // 1) totalUpvoteCount > country.totalUpvoteCount
-    // OR 2) totalUpvoteCount == country.totalUpvoteCount AND id < country.id
-    const aheadCount = await client.country.count({
-      where: {
-        OR: [
-          { totalUpvoteCount: { gt: country.totalUpvoteCount } },
-          {
-            AND: [
-              { totalUpvoteCount: country.totalUpvoteCount },
-              { id: { lt: country.id } },
-            ],
-          },
-        ],
-      },
-    });
-
-    return aheadCount + 1;
+    const countries = await this.getRankedCountries();
+    const index = countries.findIndex((country) => country.id === id);
+    return index === -1 ? null : index + 1;
   }
 }
 

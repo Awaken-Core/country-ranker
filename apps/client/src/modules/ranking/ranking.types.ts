@@ -9,6 +9,8 @@ export interface RankedCountryDTO {
   };
   upvotes: number;
   downvotes: number;
+  /** The leaderboard value: every downvote offsets one upvote. */
+  score: number;
 }
 
 export interface LiveRankingResult {

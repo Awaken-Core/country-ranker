@@ -125,10 +125,12 @@ class MockRankingRepository extends RankingRepository {
   ];
 
   async getRankedCountries(params?: { search?: string; skip?: number; take?: number }) {
-    // Deterministic sort: higher totalUpvoteCount first, secondary id ASC
+    // Deterministic sort: higher net score first, secondary id ASC
     const sorted = [...this.countries].sort((a, b) => {
-      if (b.totalUpvoteCount !== a.totalUpvoteCount) {
-        return Number(b.totalUpvoteCount - a.totalUpvoteCount);
+      const aScore = a.totalUpvoteCount - a.totalDownvoteCount;
+      const bScore = b.totalUpvoteCount - b.totalDownvoteCount;
+      if (bScore !== aScore) {
+        return Number(bScore - aScore);
       }
       return a.id.localeCompare(b.id);
     });
@@ -185,20 +187,20 @@ describe("Country Module Unit Tests", () => {
 describe("Ranking Module Unit Tests", () => {
   const service = new RankingService(new MockRankingRepository());
 
-  it("should rank by highest total upvotes first", async () => {
+  it("should rank by highest net score first", async () => {
     const ranking = await service.getLiveRanking({ limit: 10 });
-    assert.equal(ranking.data[0].country.code, "IN"); // 500 upvotes, id 'country-1'
-    assert.equal(ranking.data[1].country.code, "JP"); // 500 upvotes, id 'country-2'
-    assert.equal(ranking.data[2].country.code, "US"); // 300 upvotes
+    assert.equal(ranking.data[0].country.code, "JP"); // 500 - 2
+    assert.equal(ranking.data[1].country.code, "IN"); // 500 - 10
+    assert.equal(ranking.data[2].country.code, "US"); // 300 - 20
     assert.equal(ranking.data[3].country.code, "NO"); // 0 upvotes
   });
 
-  it("should apply deterministic tie-breaking for equal upvote counts", async () => {
+  it("should let downvotes lower a country's net score", async () => {
     const ranking = await service.getLiveRanking({ limit: 10 });
-    assert.equal(ranking.data[0].rank, 1);
-    assert.equal(ranking.data[1].rank, 2);
-    assert.equal(ranking.data[0].upvotes, ranking.data[1].upvotes);
-    assert.equal(ranking.data[0].country.id, "country-1");
+    assert.equal(ranking.data[0].country.id, "country-2");
+    assert.equal(ranking.data[0].score, 498);
+    assert.equal(ranking.data[1].country.id, "country-1");
+    assert.equal(ranking.data[1].score, 490);
   });
 
   it("should calculate exact rank of an individual country", async () => {
@@ -206,14 +208,15 @@ describe("Ranking Module Unit Tests", () => {
     assert.equal(rankNorway, 4);
 
     const rankIndia = await service.getCountryRank("country-1");
-    assert.equal(rankIndia, 1);
+    assert.equal(rankIndia, 2);
   });
 
-  it("should keep totalDownvotes independent without subtracting", async () => {
+  it("should expose vote totals and their net score", async () => {
     const ranking = await service.getLiveRanking({ limit: 10 });
     const india = ranking.data.find((c) => c.country.code === "IN");
     assert.ok(india);
     assert.equal(india.upvotes, 500);
     assert.equal(india.downvotes, 10);
+    assert.equal(india.score, 490);
   });
 });
