@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronUp, ChevronDown, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { ChevronUp, ChevronDown, Loader2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
 import { useVoting } from "@/hooks/use-voting";
+import { Confetti, type ConfettiRef } from "@/components/ui/confetti";
 
 interface VotingPanelProps {
   slug: string;
+  countryName: string;
   initialUpvotes: number;
   initialDownvotes: number;
 }
@@ -21,7 +24,13 @@ function formatResetTime(iso: string): string {
   return `${h}:${m} UTC`;
 }
 
-export function VotingPanel({ slug, initialUpvotes, initialDownvotes }: VotingPanelProps) {
+export function VotingPanel({
+  slug,
+  countryName,
+  initialUpvotes,
+  initialDownvotes,
+}: VotingPanelProps) {
+  const confettiRef = useRef<ConfettiRef>(null);
   const { data: session, isPending: isSessionPending } = useSession();
 
   const {
@@ -48,6 +57,30 @@ export function VotingPanel({ slug, initialUpvotes, initialDownvotes }: VotingPa
   const upvoteRemaining = balance?.upvoteRemaining ?? 0;
   const downvoteRemaining = balance?.downvoteRemaining ?? 0;
   const purchasedRemaining = balance?.purchasedRemaining ?? 0;
+
+  async function handleVote(voteType: "UPVOTE" | "DOWNVOTE") {
+    const freeRemaining =
+      voteType === "UPVOTE" ? upvoteRemaining : downvoteRemaining;
+    const result = await castVote(
+      voteType,
+      freeRemaining > 0 ? "FREE" : "PURCHASED",
+    );
+    if (!result) return;
+
+    void confettiRef.current?.fire({
+      particleCount: 80,
+      spread: 65,
+      startVelocity: 35,
+      origin: { x: 0.5, y: 0.65 },
+      colors:
+        voteType === "UPVOTE"
+          ? ["#00df81", "#33ffaa", "#ffffff"]
+          : ["#ff4d4d", "#ff8080", "#ffffff"],
+    });
+    toast.success(
+      `🎉 You ${voteType === "UPVOTE" ? "upvoted" : "downvoted"} ${countryName}`,
+    );
+  }
 
   // ── Not signed in ─────────────────────────────────────────────────────────
   if (!isSessionPending && !session?.user) {
@@ -84,6 +117,11 @@ export function VotingPanel({ slug, initialUpvotes, initialDownvotes }: VotingPa
 
   return (
     <div className="p-4 rounded-xl border border-white/[0.06] bg-[#090909] space-y-3.5">
+      <Confetti
+        ref={confettiRef}
+        manualstart
+        className="pointer-events-none fixed inset-0 z-[9999] size-full"
+      />
       {/* Header row: label + allowance */}
       <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-zinc-400">
         <span>Cast your vote</span>
@@ -97,7 +135,7 @@ export function VotingPanel({ slug, initialUpvotes, initialDownvotes }: VotingPa
                 <span
                   className={cn(
                     "font-semibold tabular-nums",
-                    upvoteRemaining > 0 ? "text-emerald-400" : "text-zinc-500"
+                    upvoteRemaining > 0 ? "text-emerald-400" : "text-zinc-500",
                   )}
                 >
                   {upvoteRemaining}
@@ -107,7 +145,7 @@ export function VotingPanel({ slug, initialUpvotes, initialDownvotes }: VotingPa
                 <span
                   className={cn(
                     "font-semibold tabular-nums",
-                    downvoteRemaining > 0 ? "text-red-400" : "text-zinc-500"
+                    downvoteRemaining > 0 ? "text-red-400" : "text-zinc-500",
                   )}
                 >
                   {downvoteRemaining}
@@ -133,35 +171,29 @@ export function VotingPanel({ slug, initialUpvotes, initialDownvotes }: VotingPa
         <VoteButton
           direction="up"
           count={upvotes}
-          disabled={!isLoggedIn || (upvoteRemaining === 0 && purchasedRemaining === 0) || isVoting}
+          disabled={
+            !isLoggedIn ||
+            (upvoteRemaining === 0 && purchasedRemaining === 0) ||
+            isVoting
+          }
           loading={isVoting}
-          onClick={() => void castVote("UPVOTE", upvoteRemaining > 0 ? "FREE" : "PURCHASED")}
+          onClick={() => void handleVote("UPVOTE")}
         />
         <VoteButton
           direction="down"
           count={downvotes}
-          disabled={!isLoggedIn || (downvoteRemaining === 0 && purchasedRemaining === 0) || isVoting}
+          disabled={
+            !isLoggedIn ||
+            (downvoteRemaining === 0 && purchasedRemaining === 0) ||
+            isVoting
+          }
           loading={isVoting}
-          onClick={() => void castVote("DOWNVOTE", downvoteRemaining > 0 ? "FREE" : "PURCHASED")}
+          onClick={() => void handleVote("DOWNVOTE")}
         />
       </div>
 
       {/* Status messages with AnimatePresence */}
       <AnimatePresence mode="wait">
-        {voteStatus === "success" && (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, y: -3 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.12 }}
-            className="flex items-center gap-1.5 font-mono text-[11px] text-emerald-400"
-          >
-            <CheckCircle2 className="size-3.5" />
-            <span>Vote successfully recorded</span>
-          </motion.div>
-        )}
-
         {voteStatus === "error" && errorMessage && (
           <motion.div
             key="error"
@@ -178,12 +210,19 @@ export function VotingPanel({ slug, initialUpvotes, initialDownvotes }: VotingPa
       </AnimatePresence>
 
       {/* Reset time / limit reached */}
-      {isLoggedIn && balance && upvoteRemaining === 0 && downvoteRemaining === 0 && purchasedRemaining === 0 && (
-        <p className="font-mono text-[10px] text-zinc-500">
-          Daily limit reached. Resets at{" "}
-          <span className="text-zinc-400">{formatResetTime(balance.resetsAt)}</span>.
-        </p>
-      )}
+      {isLoggedIn &&
+        balance &&
+        upvoteRemaining === 0 &&
+        downvoteRemaining === 0 &&
+        purchasedRemaining === 0 && (
+          <p className="font-mono text-[10px] text-zinc-500">
+            Daily limit reached. Resets at{" "}
+            <span className="text-zinc-400">
+              {formatResetTime(balance.resetsAt)}
+            </span>
+            .
+          </p>
+        )}
     </div>
   );
 }
@@ -198,7 +237,13 @@ interface VoteButtonProps {
   onClick: () => void;
 }
 
-function VoteButton({ direction, count, disabled, loading, onClick }: VoteButtonProps) {
+function VoteButton({
+  direction,
+  count,
+  disabled,
+  loading,
+  onClick,
+}: VoteButtonProps) {
   const isUp = direction === "up";
 
   return (
@@ -214,7 +259,7 @@ function VoteButton({ direction, count, disabled, loading, onClick }: VoteButton
         "disabled:opacity-40 disabled:cursor-not-allowed",
         isUp
           ? "border-[#005e38] bg-[#04160e] text-[#00e599] hover:enabled:border-[#008f55] hover:enabled:bg-[#072417] hover:enabled:text-[#33ffaa]"
-          : "border-[#5a141b] bg-[#160507] text-[#ff4d4d] hover:enabled:border-[#801c26] hover:enabled:bg-[#25080c] hover:enabled:text-[#ff6666]"
+          : "border-[#5a141b] bg-[#160507] text-[#ff4d4d] hover:enabled:border-[#801c26] hover:enabled:bg-[#25080c] hover:enabled:text-[#ff6666]",
       )}
     >
       <span className="flex items-center justify-center size-4 select-none">

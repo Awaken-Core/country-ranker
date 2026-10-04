@@ -18,7 +18,7 @@ export async function lockVoter(tx: Tx, userId: string) {
 }
 export async function balance(tx: Tx, userId: string, now = new Date()) {
   const day = utcDay(now);
-  const [usage, purchased, spent] = await Promise.all([
+  const [usage, purchased, paidVotes] = await Promise.all([
     tx.dailyVoteUsage.findUnique({
       where: { userId_voteDate: { userId, voteDate: day } },
     }),
@@ -26,8 +26,8 @@ export async function balance(tx: Tx, userId: string, now = new Date()) {
       where: { userId, status: "COMPLETED" },
       _sum: { voteQuantity: true },
     }),
-    tx.voteLog.aggregate({
-      where: { userId, voteIntentionType: "PURCHASED" },
+    tx.countryVotePaid.aggregate({
+      where: { userId },
       _sum: { count: true },
     }),
   ]);
@@ -42,7 +42,7 @@ export async function balance(tx: Tx, userId: string, now = new Date()) {
     ),
     purchasedRemaining: Math.max(
       0,
-      (purchased._sum.voteQuantity ?? 0) - (spent._sum.count ?? 0),
+      (purchased._sum.voteQuantity ?? 0) - (paidVotes._sum.count ?? 0),
     ),
     resetsAt: new Date(day.getTime() + 86400000).toISOString(),
   };
@@ -92,7 +92,18 @@ export class VotingService {
               409,
               "This request key belongs to a different vote.",
             );
-          return existing.result as unknown as VoteResult;
+          if (existing.result) return existing.result as unknown as VoteResult;
+
+          return {
+            success: true,
+            country: {
+              slug: existing.country.slug,
+              totalUpvoteCount: existing.country.totalUpvoteCount.toString(),
+              totalDownvoteCount:
+                existing.country.totalDownvoteCount.toString(),
+            },
+            voting: await balance(tx, userId, this.clock()),
+          };
         }
         const user = await tx.user.findUnique({ where: { id: userId } });
         if (!user) throw new VoteError("UNAUTHORIZED", 401, "Sign in to vote.");
@@ -106,6 +117,9 @@ export class VotingService {
         if (!country)
           throw new VoteError("COUNTRY_NOT_FOUND", 404, "Country not found.");
         const now = this.clock();
+        let paidBalanceBeforeVote: Awaited<ReturnType<typeof balance>> | null =
+          null;
+
         if (input.source === "FREE") {
           const voteDate = utcDay(now);
           await tx.dailyVoteUsage.upsert({
@@ -141,8 +155,8 @@ export class VotingService {
             );
           }
         } else {
-          const available = await balance(tx, userId, this.clock());
-          if (available.purchasedRemaining < input.count)
+          paidBalanceBeforeVote = await balance(tx, userId, now);
+          if (paidBalanceBeforeVote.purchasedRemaining < input.count)
             throw new VoteError(
               "INSUFFICIENT_PURCHASED_VOTES",
               409,
@@ -155,21 +169,6 @@ export class VotingService {
           voteType: input.voteType,
           count: input.count,
         };
-        const log = await tx.voteLog.create({
-          data: {
-            ...event,
-            voteIntentionType: input.source,
-            requestId: input.idempotencyKey,
-          },
-        });
-        if (input.source === "FREE")
-          await tx.countryVoteFree.create({
-            data: { ...event, voteLogId: log.id },
-          });
-        else
-          await tx.countryVotePaid.create({
-            data: { ...event, voteLogId: log.id },
-          });
         const totals = await tx.country.update({
           where: { id: country.id },
           data:
@@ -177,6 +176,14 @@ export class VotingService {
               ? { totalUpvoteCount: { increment: input.count } }
               : { totalDownvoteCount: { increment: input.count } },
         });
+        const voting =
+          input.source === "FREE"
+            ? await balance(tx, userId, now)
+            : {
+                ...paidBalanceBeforeVote!,
+                purchasedRemaining:
+                  paidBalanceBeforeVote!.purchasedRemaining - input.count,
+              };
         const result: VoteResult = {
           success: true,
           country: {
@@ -184,12 +191,21 @@ export class VotingService {
             totalUpvoteCount: totals.totalUpvoteCount.toString(),
             totalDownvoteCount: totals.totalDownvoteCount.toString(),
           },
-          voting: await balance(tx, userId, now),
+          voting,
         };
-        await tx.voteLog.update({
-          where: { id: log.id },
-          data: { result: result as unknown as Prisma.InputJsonValue },
+
+        await tx.voteLog.create({
+          data: {
+            ...event,
+            voteIntentionType: input.source,
+            requestId: input.idempotencyKey,
+            result: result as unknown as Prisma.InputJsonValue,
+            ...(input.source === "FREE"
+              ? { freeDetail: { create: event } }
+              : { paidDetail: { create: event } }),
+          },
         });
+
         return result;
       },
       { timeout: 15000 },

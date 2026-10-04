@@ -1,7 +1,13 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, TrendingUp, ThumbsUp, ThumbsDown } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  TrendingUp,
+  ThumbsUp,
+  ThumbsDown,
+} from "lucide-react";
 import { countryService } from "@/modules/countries/country.service";
 import { rankingService } from "@/modules/ranking/ranking.service";
 import { CountryFlag } from "@/components/country-flag";
@@ -12,7 +18,9 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const country = await countryService.getCountryBySlug(slug);
 
@@ -99,7 +107,9 @@ export default async function CountryDetailPage({ params }: PageProps) {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-5">
             <div className="p-3.5 rounded-lg bg-[#080808] border border-white/[0.05] hover:border-white/[0.1] transition-colors">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">Upvotes</span>
+                <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
+                  Upvotes
+                </span>
                 <ThumbsUp className="size-3 text-emerald-400" />
               </div>
               <div className="font-mono text-base sm:text-lg font-bold text-white mt-1 tabular-nums">
@@ -109,7 +119,9 @@ export default async function CountryDetailPage({ params }: PageProps) {
 
             <div className="p-3.5 rounded-lg bg-[#080808] border border-white/[0.05] hover:border-white/[0.1] transition-colors">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">Downvotes</span>
+                <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
+                  Downvotes
+                </span>
                 <ThumbsDown className="size-3 text-red-400" />
               </div>
               <div className="font-mono text-base sm:text-lg font-bold text-zinc-400 mt-1 tabular-nums">
@@ -119,7 +131,9 @@ export default async function CountryDetailPage({ params }: PageProps) {
 
             <div className="col-span-2 sm:col-span-1 p-3.5 rounded-lg bg-[#080808] border border-white/[0.05] hover:border-white/[0.1] transition-colors">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">Trend</span>
+                <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
+                  Trend
+                </span>
                 <TrendingUp className="size-3 text-emerald-400" />
               </div>
               <div className="font-mono text-base sm:text-lg font-bold text-emerald-400 mt-1">
@@ -131,6 +145,7 @@ export default async function CountryDetailPage({ params }: PageProps) {
           {/* Voting */}
           <VotingPanel
             slug={country.slug}
+            countryName={country.name}
             initialUpvotes={country.totalUpvotes}
             initialDownvotes={country.totalDownvotes}
           />
