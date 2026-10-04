@@ -30,6 +30,7 @@ export class RankingService {
         },
         upvotes: Number(item.totalUpvoteCount),
         downvotes: Number(item.totalDownvoteCount),
+        score: Number(item.totalUpvoteCount - item.totalDownvoteCount),
       }));
 
       return {

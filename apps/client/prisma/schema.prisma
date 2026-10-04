@@ -11,6 +11,17 @@ enum UserRole {
   ADMIN
 }
 
+enum AdminPermission {
+  MANAGE_ADMINS
+  COUNTRIES_VIEW
+  COUNTRIES_EDIT
+  VOTES_VIEW
+  VOTES_ADJUST
+  USERS_VIEW
+  USERS_MANAGE
+  AUDIT_LOGS_VIEW
+}
+
 enum PaymentStatus {
   PENDING
   COMPLETED
@@ -43,23 +54,25 @@ enum SponsorBillingStatus {
 }
 
 model User {
-  id                String             @id
-  name              String
-  email             String
-  emailVerified     Boolean            @default(false)
-  image             String?
-  role              UserRole           @default(USER)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  sessions          Session[]
-  accounts          Account[]
-  userPaymentLogs   UserPaymentLog[]
-  payments          Payment[]
-  voteLogs          VoteLog[]
-  pushNotifications PushNotification[]
-  countryVoteFrees  CountryVoteFree[]
-  countryVotePaids  CountryVotePaid[]
-  dailyVoteUsage    DailyVoteUsage[]
+  id                  String               @id
+  name                String
+  email               String
+  emailVerified       Boolean              @default(false)
+  image               String?
+  role                UserRole             @default(USER)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  sessions            Session[]
+  accounts            Account[]
+  userPaymentLogs     UserPaymentLog[]
+  payments            Payment[]
+  voteLogs            VoteLog[]
+  pushNotifications   PushNotification[]
+  countryVoteFrees    CountryVoteFree[]
+  countryVotePaids    CountryVotePaid[]
+  dailyVoteUsage      DailyVoteUsage[]
+  permissions         UserAdminPermission[]
+  auditLogs           AuditLog[]
 
   @@unique([email])
   @@map("user")
@@ -233,7 +246,7 @@ model SponsorBillingCycle {
   id         String               @id @default(uuid())
   sponsorId  String
   slotId     String
-  paymentsId String?              @unique
+  paymentsId String?              @unique @db.Uuid
   startDate  DateTime             @db.Timestamp(3)
   endDate    DateTime             @db.Timestamp(3)
   status     SponsorBillingStatus @default(ACTIVE)
@@ -338,4 +351,35 @@ model VoteRateLimit {
   attempts    Int
 
   @@map("vote_rate_limit")
+}
+
+model UserAdminPermission {
+  id         String          @id @default(uuid())
+  userId     String
+  permission AdminPermission
+  createdAt  DateTime        @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permission])
+  @@index([userId])
+  @@map("user_admin_permission")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  targetType String
+  targetId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_log")
 }
