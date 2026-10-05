@@ -26,7 +26,11 @@ export class CountryService {
     };
   }
 
-  async getAllCountries(params?: { search?: string; page?: number; limit?: number }) {
+  async getAllCountries(params?: {
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
     const page = params?.page && params.page > 0 ? params.page : 1;
     const limit = params?.limit && params.limit > 0 ? params.limit : 50;
     const skip = (page - 1) * limit;
@@ -47,7 +51,10 @@ export class CountryService {
         },
       };
     } catch (error) {
-      console.warn("Could not fetch countries from DB (offline or building):", error);
+      console.warn(
+        "Could not fetch countries from DB (offline or building):",
+        error,
+      );
       return {
         data: [],
         pagination: {

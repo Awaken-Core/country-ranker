@@ -32,7 +32,11 @@ interface UseVotingOptions {
   initialDownvotes: number;
 }
 
-export function useVoting({ slug, initialUpvotes, initialDownvotes }: UseVotingOptions) {
+export function useVoting({
+  slug,
+  initialUpvotes,
+  initialDownvotes,
+}: UseVotingOptions) {
   const [balance, setBalance] = useState<VoteBalance | null>(null);
   const [balanceStatus, setBalanceStatus] = useState<VotingStatus>("idle");
   const [upvotes, setUpvotes] = useState(initialUpvotes);
@@ -43,7 +47,11 @@ export function useVoting({ slug, initialUpvotes, initialDownvotes }: UseVotingO
 
   // Idempotency key for the current in-flight request. Kept across retries.
   const pendingKeyRef = useRef<string | null>(null);
-  const pendingVoteRef = useRef<{ voteType: VoteType; source: VoteSource; count: number } | null>(null);
+  const pendingVoteRef = useRef<{
+    voteType: VoteType;
+    source: VoteSource;
+    count: number;
+  } | null>(null);
 
   const fetchBalance = useCallback(async () => {
     setBalanceStatus("loading");
@@ -64,7 +72,10 @@ export function useVoting({ slug, initialUpvotes, initialDownvotes }: UseVotingO
   }, []);
 
   const castVote = useCallback(
-    async (voteType: VoteType, source: VoteSource = "FREE") => {
+    async (
+      voteType: VoteType,
+      source: VoteSource = "FREE",
+    ): Promise<VoteResult | null> => {
       setErrorMessage(null);
       setErrorCode(null);
 
@@ -95,8 +106,7 @@ export function useVoting({ slug, initialUpvotes, initialDownvotes }: UseVotingO
         });
 
         const body = (await res.json()) as
-          | VoteResult
-          | { error: string; message: string };
+          VoteResult | { error: string; message: string };
 
         if (!res.ok) {
           const err = body as { error: string; message: string };
@@ -108,7 +118,7 @@ export function useVoting({ slug, initialUpvotes, initialDownvotes }: UseVotingO
             pendingKeyRef.current = null;
             pendingVoteRef.current = null;
           }
-          return;
+          return null;
         }
 
         const result = body as VoteResult;
@@ -120,11 +130,13 @@ export function useVoting({ slug, initialUpvotes, initialDownvotes }: UseVotingO
         // Clear pending key — vote is committed
         pendingKeyRef.current = null;
         pendingVoteRef.current = null;
+        return result;
       } catch {
         // Network error — keep the idempotency key so the user can retry
         setErrorMessage("Network error. Tap again to retry with the same key.");
         setErrorCode("NETWORK_ERROR");
         setVoteStatus("error");
+        return null;
       }
     },
     [slug],

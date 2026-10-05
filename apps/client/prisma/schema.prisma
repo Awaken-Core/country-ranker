@@ -8,8 +8,8 @@ datasource db {
 
 enum UserRole {
   USER
+  CUSTOMER
   ADMIN
-  score score
 }
 
 enum AdminPermission {
@@ -48,27 +48,33 @@ enum NotificationType {
   SYSTEM // all users will receive this notification via sse
 }
 
+enum SponsorBillingStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
 model User {
-  id                  String               @id
-  name                String
-  email               String
-  emailVerified       Boolean              @default(false)
-  image               String?
-  role                UserRole             @default(USER)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  sessions            Session[]
-  accounts            Account[]
-  userPaymentLogs     UserPaymentLog[]
-  payments            Payment[]
-  voteLogs            VoteLog[]
-  pushNotifications   PushNotification[]
-  countryVoteFrees    CountryVoteFree[]
-  countryVotePaids    CountryVotePaid[]
-  dailyVoteUsage      DailyVoteUsage[]
-  purchasedVoteGrants PurchasedVoteGrant[]
-  permissions         UserAdminPermission[]
-  auditLogs           AuditLog[]
+  id                String                @id
+  name              String
+  email             String
+  emailVerified     Boolean               @default(false)
+  image             String?
+  role              UserRole              @default(USER)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  sessions          Session[]
+  accounts          Account[]
+  userPaymentLogs   UserPaymentLog[]
+  payments          Payment[]
+  voteLogs          VoteLog[]
+  pushNotifications PushNotification[]
+  countryVoteFrees  CountryVoteFree[]
+  countryVotePaids  CountryVotePaid[]
+  dailyVoteUsage    DailyVoteUsage[]
+  permissions       UserAdminPermission[]
+  auditLogs         AuditLog[]
+  sponsors          Sponsor[]
 
   @@unique([email])
   @@map("user")
@@ -164,14 +170,13 @@ model CountryVoteFree {
 
 // This is a append only log
 model CountryVotePaid {
-  id          String                    @id @default(uuid())
-  count       Int                       @default(0)
-  voteType    VoteType
-  countryId   String
-  userId      String // vote by userId
-  voteLogId   String?                   @unique
-  voteLog     VoteLog?                  @relation(fields: [voteLogId], references: [id], onDelete: Restrict)
-  allocations PurchasedVoteAllocation[]
+  id        String   @id @default(uuid())
+  count     Int      @default(0)
+  voteType  VoteType
+  countryId String
+  userId    String // vote by userId
+  voteLogId String?  @unique
+  voteLog   VoteLog? @relation(fields: [voteLogId], references: [id], onDelete: Restrict)
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
   country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
@@ -209,17 +214,23 @@ model VoteLog {
 }
 
 model Sponsor {
-  id        String  @id @default(uuid())
-  countryId String?
-  name      String
-  logo      String
-  website   String
+  id          String  @id @default(uuid())
+  userId      String?
+  countryId   String?
+  name        String
+  description String?
+  logo        String
+  bgColor     String?
+  textColor   String?
+  website     String
 
   country Country? @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  slots     Slots[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  slots                Slots[]
+  sponsorBillingCycles SponsorBillingCycle[]
 
   @@map("sponsor")
 }
@@ -229,11 +240,35 @@ model Slots {
   id        String  @id @default(uuid())
   sponsorId String
   sponsor   Sponsor @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+  isActive  Boolean @default(true)
+
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  sponsorBillingCycles SponsorBillingCycle[]
+
+  @@map("slots")
+}
+
+model SponsorBillingCycle {
+  id         String               @id @default(uuid())
+  sponsorId  String
+  slotId     String
+  paymentsId String?              @unique @db.Uuid
+  startDate  DateTime             @db.Timestamp(3)
+  endDate    DateTime             @db.Timestamp(3)
+  status     SponsorBillingStatus @default(ACTIVE)
+
+  sponsor  Sponsor  @relation(fields: [sponsorId], references: [id], onDelete: Restrict)
+  payments Payment? @relation(fields: [paymentsId], references: [id], onDelete: Restrict)
+  slot     Slots    @relation(fields: [slotId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("slots")
+  @@index([sponsorId])
+  @@index([slotId])
+  @@index([slotId, startDate, endDate])
+  @@map("sponsor_billing_cycle")
 }
 
 model UserPaymentLog {
@@ -263,9 +298,9 @@ model Payment {
 
   user User @relation(fields: [userId], references: [id], onDelete: NoAction)
 
-  transaction    PaymentTransaction?
-  userPaymentLog UserPaymentLog?
-  voteGrant      PurchasedVoteGrant?
+  transaction         PaymentTransaction?
+  userPaymentLog      UserPaymentLog?
+  sponsorBillingCycle SponsorBillingCycle?
 
   @@index([userId])
 }
@@ -303,46 +338,18 @@ model PushNotification {
 }
 
 model DailyVoteUsage {
-  id        String   @id @default(uuid())
-  userId    String
-  voteDate  DateTime @db.Date
-  usedCount Int      @default(0)
-  upvoteUsedCount Int @default(0)
-  downvoteUsedCount Int @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String   @id @default(uuid())
+  userId            String
+  voteDate          DateTime @db.Date
+  usedCount         Int      @default(0)
+  upvoteUsedCount   Int      @default(0)
+  downvoteUsedCount Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, voteDate])
   @@map("daily_vote_usage")
-}
-
-model PurchasedVoteGrant {
-  id             String                    @id @default(uuid())
-  userId         String
-  paymentId      String                    @unique @db.Uuid
-  grantedVotes   Int
-  remainingVotes Int
-  createdAt      DateTime                  @default(now())
-  updatedAt      DateTime                  @updatedAt
-  user           User                      @relation(fields: [userId], references: [id], onDelete: Restrict)
-  payment        Payment                   @relation(fields: [paymentId], references: [id], onDelete: Restrict)
-  allocations    PurchasedVoteAllocation[]
-
-  @@index([userId])
-  @@map("purchased_vote_grant")
-}
-
-model PurchasedVoteAllocation {
-  id         String             @id @default(uuid())
-  paidVoteId String
-  grantId    String
-  count      Int
-  paidVote   CountryVotePaid    @relation(fields: [paidVoteId], references: [id], onDelete: Restrict)
-  grant      PurchasedVoteGrant @relation(fields: [grantId], references: [id], onDelete: Restrict)
-
-  @@unique([paidVoteId, grantId])
-  @@map("purchased_vote_allocation")
 }
 
 model VoteRateLimit {
@@ -367,14 +374,14 @@ model UserAdminPermission {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String
-  action    String
+  id         String   @id @default(uuid())
+  userId     String
+  action     String
   targetType String
-  targetId  String?
-  details   Json?
-  ipAddress String?
-  createdAt DateTime @default(now())
+  targetId   String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

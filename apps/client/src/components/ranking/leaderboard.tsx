@@ -1,36 +1,87 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { Search, X, ArrowRight } from "lucide-react";
 import { RankedCountryDTO } from "@/modules/ranking/ranking.types";
 import { CountryRankingRow } from "./country-ranking-row";
 import { cn } from "@/lib/utils";
+import { Confetti, type ConfettiRef } from "@/components/ui/confetti";
+import { toast } from "sonner";
+import VotePurchaseModal from "@/components/purchase/vote-purchase-modal";
 
 interface LeaderboardProps {
   initialRankings: RankedCountryDTO[];
 }
 
-export const Leaderboard: React.FC<LeaderboardProps> = ({ initialRankings }) => {
+export const Leaderboard: React.FC<LeaderboardProps> = ({
+  initialRankings,
+}) => {
+  const confettiRef = useRef<ConfettiRef>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "top20" | "top50">("all");
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const [purchaseCountryId, setPurchaseCountryId] = useState<string | null>(
+    null,
+  );
+  const purchasableCountries = useMemo(
+    () => initialRankings.map(({ country }) => country),
+    [initialRankings],
+  );
+
+  const handleVoteSuccess = useCallback(
+    (countryName: string, voteType: "UPVOTE" | "DOWNVOTE") => {
+      void confettiRef.current?.fire({
+        particleCount: 80,
+        spread: 65,
+        startVelocity: 35,
+        origin: { x: 0.5, y: 0.65 },
+        colors:
+          voteType === "UPVOTE"
+            ? ["#00df81", "#33ffaa", "#ffffff"]
+            : ["#ff4d4d", "#ff8080", "#ffffff"],
+      });
+      toast.success(
+        `🎉 You ${voteType === "UPVOTE" ? "upvoted" : "downvoted"} ${countryName}`,
+      );
+    },
+    [],
+  );
 
   const filtered = initialRankings.filter(
     (item) =>
       item.country.name.toLowerCase().includes(search.toLowerCase().trim()) ||
-      item.country.code.toLowerCase().includes(search.toLowerCase().trim())
+      item.country.code.toLowerCase().includes(search.toLowerCase().trim()),
   );
 
   const displayedList =
     filter === "top20"
       ? filtered.slice(0, 20)
       : filter === "top50"
-      ? filtered.slice(0, 50)
-      : filtered;
+        ? filtered.slice(0, 50)
+        : filtered;
+
+  function openPurchaseModal(countryId: string) {
+    setPurchaseCountryId(countryId);
+    setPurchaseOpen(true);
+  }
 
   return (
     <div className="w-full flex-1 min-h-0 flex flex-col font-sans">
+      <Confetti
+        ref={confettiRef}
+        manualstart
+        className="pointer-events-none fixed inset-0 z-[9999] size-full"
+      />
+      {purchaseOpen && (
+        <VotePurchaseModal
+          open
+          onOpenChange={setPurchaseOpen}
+          countries={purchasableCountries}
+          initialCountryId={purchaseCountryId}
+        />
+      )}
       {/* 1. Compact Editorial Header */}
       <div className="shrink-0 mb-3">
         <div className="flex items-center justify-between mb-1.5">
@@ -76,7 +127,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ initialRankings }) => 
                 "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                 filter === "all"
                   ? "bg-[#1c1c1c] text-white border border-white/[0.1] shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-zinc-400 hover:text-white",
               )}
             >
               All Ranked ({initialRankings.length})
@@ -88,7 +139,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ initialRankings }) => 
                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer",
                 filter === "top20"
                   ? "bg-[#1c1c1c] text-white border border-white/[0.1] shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-zinc-400 hover:text-white",
               )}
             >
               Top 20
@@ -100,7 +151,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ initialRankings }) => 
                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer",
                 filter === "top50"
                   ? "bg-[#1c1c1c] text-white border border-white/[0.1] shadow-sm"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-zinc-400 hover:text-white",
               )}
             >
               Top 50
@@ -132,10 +183,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ initialRankings }) => 
 
         {/* Table Column Headers */}
         <div className="shrink-0 grid grid-cols-12 px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[10px] uppercase tracking-wider text-zinc-500">
-          <div className="col-span-2 sm:col-span-1"># Rank</div>
-          <div className="col-span-6 sm:col-span-7">Country</div>
-          <div className="col-span-2 text-right">Score</div>
-          <div className="col-span-2 text-right">Vote</div>
+          <div className="col-span-1"># Rank</div>
+          <div className="col-span-7">Country</div>
+          <div className="col-span-1 text-end">Score</div>
+          <div className="col-span-3 text-end pr-14">Actions</div>
         </div>
 
         {/* 3. The Dedicated Scrolling Body */}
@@ -147,12 +198,21 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ initialRankings }) => 
               transition={{ duration: 0.15 }}
               className="h-48 flex flex-col items-center justify-center text-center p-4"
             >
-              <p className="text-zinc-400 text-xs font-mono">No matching country found.</p>
-              <p className="text-zinc-600 text-[11px] mt-1">Try searching by official name or 2-letter ISO code.</p>
+              <p className="text-zinc-400 text-xs font-mono">
+                No matching country found.
+              </p>
+              <p className="text-zinc-600 text-[11px] mt-1">
+                Try searching by official name or 2-letter ISO code.
+              </p>
             </motion.div>
           ) : (
             displayedList.map((item) => (
-              <CountryRankingRow key={item.country.id} rankedCountry={item} />
+              <CountryRankingRow
+                key={item.country.id}
+                rankedCountry={item}
+                onVoteSuccess={handleVoteSuccess}
+                onOpenPurchase={openPurchaseModal}
+              />
             ))
           )}
         </div>

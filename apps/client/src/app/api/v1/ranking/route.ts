@@ -13,8 +13,11 @@ export async function GET(request: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid ranking query parameters", details: parsed.error.format() },
-        { status: 400 }
+        {
+          error: "Invalid ranking query parameters",
+          details: parsed.error.format(),
+        },
+        { status: 400 },
       );
     }
 
@@ -22,6 +25,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(ranking);
   } catch (error) {
     console.error("GET /api/v1/ranking error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

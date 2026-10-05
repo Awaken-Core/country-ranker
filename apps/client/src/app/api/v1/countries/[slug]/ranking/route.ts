@@ -13,7 +13,10 @@ export async function GET(request: NextRequest, context: Context) {
     const parsedSlug = CountrySlugSchema.safeParse(slug);
 
     if (!parsedSlug.success) {
-      return NextResponse.json({ error: "Invalid country slug" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid country slug" },
+        { status: 400 },
+      );
     }
 
     const country = await countryService.getCountryBySlug(parsedSlug.data);
@@ -29,6 +32,9 @@ export async function GET(request: NextRequest, context: Context) {
     });
   } catch (error) {
     console.error("GET /api/v1/countries/[slug]/ranking error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

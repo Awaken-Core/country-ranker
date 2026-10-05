@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Invalid query parameters", details: parsed.error.format() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     console.error("GET /api/v1/countries error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

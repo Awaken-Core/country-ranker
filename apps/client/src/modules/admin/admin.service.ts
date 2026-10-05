@@ -33,7 +33,10 @@ export class AdminService {
       return { authorized: false, error: "FORBIDDEN", status: 403 };
     }
 
-    if (requiredPermission && !context.permissions.includes(requiredPermission)) {
+    if (
+      requiredPermission &&
+      !context.permissions.includes(requiredPermission)
+    ) {
       return {
         authorized: false,
         error: "INSUFFICIENT_PERMISSIONS",
@@ -46,7 +49,11 @@ export class AdminService {
   }
 
   // Super Admin: Admin Management
-  async createAdmin(actorId: string, targetUserId: string, initialPermissions: AdminPermission[] = []) {
+  async createAdmin(
+    actorId: string,
+    targetUserId: string,
+    initialPermissions: AdminPermission[] = [],
+  ) {
     const authCheck = await this.verifyAccess(actorId);
     if (!authCheck.authorized || authCheck.user?.role !== "SUPER_ADMIN") {
       throw new Error("Only SUPER_ADMIN can create new admins");
@@ -87,13 +94,20 @@ export class AdminService {
     return updated;
   }
 
-  async setPermissions(actorId: string, targetUserId: string, permissions: AdminPermission[]) {
+  async setPermissions(
+    actorId: string,
+    targetUserId: string,
+    permissions: AdminPermission[],
+  ) {
     const authCheck = await this.verifyAccess(actorId);
     if (!authCheck.authorized || authCheck.user?.role !== "SUPER_ADMIN") {
       throw new Error("Only SUPER_ADMIN can grant or revoke admin permissions");
     }
 
-    const updated = await this.repo.setUserPermissions(targetUserId, permissions);
+    const updated = await this.repo.setUserPermissions(
+      targetUserId,
+      permissions,
+    );
 
     await this.repo.createAuditLog({
       userId: actorId,
@@ -112,7 +126,7 @@ export class AdminService {
     countryId: string,
     upvotesDelta: number,
     downvotesDelta: number,
-    reason: string
+    reason: string,
   ) {
     const authCheck = await this.verifyAccess(actorId, "VOTES_ADJUST");
     if (!authCheck.authorized) {
@@ -120,13 +134,15 @@ export class AdminService {
     }
 
     if (!reason || typeof reason !== "string" || reason.trim().length < 5) {
-      throw new Error("Reason is mandatory and must be at least 5 characters long");
+      throw new Error(
+        "Reason is mandatory and must be at least 5 characters long",
+      );
     }
 
     const result = await this.repo.adjustCountryVotes(
       countryId,
       upvotesDelta,
-      downvotesDelta
+      downvotesDelta,
     );
 
     await this.repo.createAuditLog({
@@ -151,7 +167,11 @@ export class AdminService {
   }
 
   // Admin Actions: Edit Country
-  async editCountry(actorId: string, countryId: string, data: { name?: string; flag?: string }) {
+  async editCountry(
+    actorId: string,
+    countryId: string,
+    data: { name?: string; flag?: string },
+  ) {
     const authCheck = await this.verifyAccess(actorId, "COUNTRIES_EDIT");
     if (!authCheck.authorized) {
       throw new Error(authCheck.error || "Forbidden");
