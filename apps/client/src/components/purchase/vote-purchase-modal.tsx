@@ -25,6 +25,7 @@ import { CountryFlag } from "@/components/country-flag";
 const DEFAULT_PRICE_USD = 5;
 const DEFAULT_VOTE_COUNT = getVotesForPrice(DEFAULT_PRICE_USD).voteCount;
 const MAX_PURCHASE_VOTES = 10_000;
+type PurchasedVoteType = "UPVOTE" | "DOWNVOTE";
 
 export interface PurchasableCountry {
   id: string;
@@ -50,6 +51,8 @@ export default function VotePurchaseModal({
     initialCountryId ?? countries[0]?.id ?? "",
   );
   const [voteCount, setVoteCount] = useState(DEFAULT_VOTE_COUNT);
+  const [voteType, setVoteType] = useState<PurchasedVoteType>("UPVOTE");
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const purchase = useMemo(() => getPriceForVotes(voteCount), [voteCount]);
   const selectedCountry = countries.find((country) => country.id === countryId);
@@ -63,14 +66,42 @@ export default function VotePurchaseModal({
     );
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedCountry) {
       toast.error("Select a country before purchasing votes.");
       return;
     }
 
-    toast.info("Payment checkout is coming soon.");
+    setIsCheckingOut(true);
+
+    try {
+      const response = await fetch("/api/v1/purchase/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          purchaseType: "VOTE",
+          countryId: selectedCountry.id,
+          voteCount: purchase.voteCount,
+          voteType,
+        }),
+      });
+      const result = (await response.json()) as {
+        checkoutUrl?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !result.checkoutUrl) {
+        throw new Error(result.error || "Could not start checkout.");
+      }
+
+      window.location.assign(result.checkoutUrl);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not start checkout.",
+      );
+      setIsCheckingOut(false);
+    }
   }
 
   return (
@@ -99,7 +130,7 @@ export default function VotePurchaseModal({
             )}
             <div className="mt-1 flex items-end justify-between gap-4">
               <p className="text-2xl font-bold text-white">
-                {purchase.voteCount.toLocaleString()} votes
+                {purchase.voteCount.toLocaleString()} {voteType.toLowerCase()}s
               </p>
               <p className="font-mono text-sm font-semibold text-amber-300">
                 ${purchase.price.toFixed(2)}
@@ -143,13 +174,45 @@ export default function VotePurchaseModal({
             </Select>
           </div>
 
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">Vote type</legend>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                aria-pressed={voteType === "UPVOTE"}
+                onClick={() => setVoteType("UPVOTE")}
+                className={
+                  voteType === "UPVOTE"
+                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/15 hover:text-emerald-300"
+                    : "border-white/10 text-zinc-400"
+                }
+              >
+                ▲ Upvote
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                aria-pressed={voteType === "DOWNVOTE"}
+                onClick={() => setVoteType("DOWNVOTE")}
+                className={
+                  voteType === "DOWNVOTE"
+                    ? "border-rose-500/50 bg-rose-500/10 text-rose-400 hover:bg-rose-500/15 hover:text-rose-300"
+                    : "border-white/10 text-zinc-400"
+                }
+              >
+                ▼ Downvote
+              </Button>
+            </div>
+          </fieldset>
+
           <div className="space-y-2">
             <Label htmlFor="purchase-vote-count">Number of votes</Label>
             <Input
               id="purchase-vote-count"
               name="voteCount"
               type="number"
-              min={1}
+              min={10}
               max={MAX_PURCHASE_VOTES}
               step={1}
               value={voteCount}
@@ -167,7 +230,7 @@ export default function VotePurchaseModal({
             <div>
               <p className="text-xs text-muted-foreground">You receive</p>
               <p className="font-semibold text-white">
-                {purchase.voteCount.toLocaleString()} votes
+                {purchase.voteCount.toLocaleString()} {voteType.toLowerCase()}s
               </p>
             </div>
             <div className="text-right">
@@ -181,12 +244,16 @@ export default function VotePurchaseModal({
           <Button
             type="submit"
             disabled={
-              !countryId || voteCount < 1 || voteCount > MAX_PURCHASE_VOTES
+              isCheckingOut ||
+              !countryId ||
+              voteCount < 10 ||
+              voteCount > MAX_PURCHASE_VOTES
             }
             className="h-8 w-full bg-amber-400 font-semibold text-black hover:bg-amber-300"
           >
-            Purchase {purchase.voteCount.toLocaleString()} votes for $
-            {purchase.price.toFixed(2)}
+            {isCheckingOut
+              ? "Opening secure checkout..."
+              : `Purchase ${purchase.voteCount.toLocaleString()} ${voteType.toLowerCase()}s for $${purchase.price.toFixed(2)}`}
           </Button>
         </form>
       </DialogContent>
