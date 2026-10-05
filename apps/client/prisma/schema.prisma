@@ -54,25 +54,26 @@ enum SponsorBillingStatus {
 }
 
 model User {
-  id                  String               @id
-  name                String
-  email               String
-  emailVerified       Boolean              @default(false)
-  image               String?
-  role                UserRole             @default(USER)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  sessions            Session[]
-  accounts            Account[]
-  userPaymentLogs     UserPaymentLog[]
-  payments            Payment[]
-  voteLogs            VoteLog[]
-  pushNotifications   PushNotification[]
-  countryVoteFrees    CountryVoteFree[]
-  countryVotePaids    CountryVotePaid[]
-  dailyVoteUsage      DailyVoteUsage[]
-  permissions         UserAdminPermission[]
-  auditLogs           AuditLog[]
+  id                String                @id
+  name              String
+  email             String
+  emailVerified     Boolean               @default(false)
+  image             String?
+  role              UserRole              @default(USER)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  sessions          Session[]
+  accounts          Account[]
+  userPaymentLogs   UserPaymentLog[]
+  payments          Payment[]
+  voteLogs          VoteLog[]
+  pushNotifications PushNotification[]
+  countryVoteFrees  CountryVoteFree[]
+  countryVotePaids  CountryVotePaid[]
+  dailyVoteUsage    DailyVoteUsage[]
+  permissions       UserAdminPermission[]
+  auditLogs         AuditLog[]
+  sponsors          Sponsor[]
 
   @@unique([email])
   @@map("user")
@@ -212,13 +213,18 @@ model VoteLog {
 }
 
 model Sponsor {
-  id        String  @id @default(uuid())
-  countryId String?
-  name      String
-  logo      String
-  website   String
+  id          String  @id @default(uuid())
+  userId      String?
+  countryId   String?
+  name        String
+  description String?
+  logo        String
+  bgColor     String?
+  textColor   String?
+  website     String
 
   country Country? @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
@@ -367,14 +373,14 @@ model UserAdminPermission {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String
-  action    String
+  id         String   @id @default(uuid())
+  userId     String
+  action     String
   targetType String
-  targetId  String?
-  details   Json?
-  ipAddress String?
-  createdAt DateTime @default(now())
+  targetId   String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

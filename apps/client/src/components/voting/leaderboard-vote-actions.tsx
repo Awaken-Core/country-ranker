@@ -14,12 +14,14 @@ interface LeaderboardVoteActionsProps {
   slug: string;
   countryName: string;
   onVoteSuccess: (countryName: string, voteType: VoteType) => void;
+  onOpenPurchase: () => void;
 }
 
 export function LeaderboardVoteActions({
   slug,
   countryName,
   onVoteSuccess,
+  onOpenPurchase,
 }: LeaderboardVoteActionsProps) {
   const router = useRouter();
   const { data: session, isPending: isSessionPending } = useSession();
@@ -90,6 +92,10 @@ export function LeaderboardVoteActions({
     }
   }
 
+  function purchaseVotes() {
+    onOpenPurchase();
+  }
+
   const isUpvoted = userVoted === "UPVOTE";
   const isDownvoted = userVoted === "DOWNVOTE";
 
@@ -158,6 +164,20 @@ export function LeaderboardVoteActions({
             ▼
           </span>
         )}
+      </motion.button>
+
+      <motion.button
+        type="button"
+        title="Purchase votes for $5"
+        aria-label="Purchase votes for $5"
+        disabled={pending !== null}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.92 }}
+        transition={{ type: "spring", stiffness: 450, damping: 25 }}
+        onClick={purchaseVotes}
+        className="flex h-8 min-w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-amber-500/35 bg-amber-500/10 px-2 font-mono text-[11px] font-medium text-amber-300 transition-all hover:border-amber-400/60 hover:bg-amber-500/15 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        $5
       </motion.button>
     </div>
   );

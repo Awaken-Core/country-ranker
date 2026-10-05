@@ -12,14 +12,16 @@ interface CountryRankingRowProps {
   rankedCountry: RankedCountryDTO;
   className?: string;
   onVoteSuccess: (countryName: string, voteType: "UPVOTE" | "DOWNVOTE") => void;
+  onOpenPurchase: (countryId: string) => void;
 }
 
 export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
   rankedCountry,
   className,
   onVoteSuccess,
+  onOpenPurchase,
 }) => {
-  const { rank, country, upvotes, downvotes, score } = rankedCountry;
+  const { rank, country, score } = rankedCountry;
 
   const isGold = rank === 1;
   const isSilver = rank === 2;
@@ -68,7 +70,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       {/* Country Name + Flag + Code (cols 3-8) */}
       <Link
         href={`/country/${country.slug}`}
-        className="col-span-6 flex items-center gap-2.5 min-w-0 pr-2"
+        className="col-span-7 flex items-center gap-2.5 min-w-0 pr-2"
       >
         <CountryFlag
           code={country.code}
@@ -83,37 +85,20 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
         </span>
       </Link>
 
-      <div className="col-span-2 flex items-center justify-center gap-2 font-mono text-xs font-semibold tabular-nums">
-        <span
-          className="min-w-7 text-right text-emerald-400"
-          title={`${upvotes.toLocaleString()} upvotes`}
-        >
-          {upvotes.toLocaleString()}
-        </span>
-        <span className="text-zinc-700" aria-hidden="true">
-          /
-        </span>
-        <span
-          className="min-w-7 text-left text-red-400"
-          title={`${downvotes.toLocaleString()} downvotes`}
-        >
-          {downvotes.toLocaleString()}
-        </span>
-      </div>
-
       {/* Net score */}
-      <div className="col-span-1 flex items-center justify-end pr-4">
+      <div className="col-span-1 flex items-center justify-end">
         <span className="font-mono text-xs font-semibold text-zinc-300 group-hover:text-white tabular-nums transition-colors">
           {score.toLocaleString()}
         </span>
       </div>
 
       {/* Actions */}
-      <div className="col-span-2 flex items-center justify-end font-mono text-[11px]">
+      <div className="col-span-3 flex items-center justify-end font-mono text-[11px]">
         <LeaderboardVoteActions
           slug={country.slug}
           countryName={country.name}
           onVoteSuccess={onVoteSuccess}
+          onOpenPurchase={() => onOpenPurchase(country.id)}
         />
       </div>
     </motion.div>

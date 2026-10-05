@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Search, X, ArrowRight } from "lucide-react";
@@ -9,6 +9,7 @@ import { CountryRankingRow } from "./country-ranking-row";
 import { cn } from "@/lib/utils";
 import { Confetti, type ConfettiRef } from "@/components/ui/confetti";
 import { toast } from "sonner";
+import VotePurchaseModal from "@/components/purchase/vote-purchase-modal";
 
 interface LeaderboardProps {
   initialRankings: RankedCountryDTO[];
@@ -20,6 +21,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   const confettiRef = useRef<ConfettiRef>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "top20" | "top50">("all");
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const [purchaseCountryId, setPurchaseCountryId] = useState<string | null>(
+    null,
+  );
+  const purchasableCountries = useMemo(
+    () => initialRankings.map(({ country }) => country),
+    [initialRankings],
+  );
 
   const handleVoteSuccess = useCallback(
     (countryName: string, voteType: "UPVOTE" | "DOWNVOTE") => {
@@ -53,6 +62,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         ? filtered.slice(0, 50)
         : filtered;
 
+  function openPurchaseModal(countryId: string) {
+    setPurchaseCountryId(countryId);
+    setPurchaseOpen(true);
+  }
+
   return (
     <div className="w-full flex-1 min-h-0 flex flex-col font-sans">
       <Confetti
@@ -60,6 +74,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         manualstart
         className="pointer-events-none fixed inset-0 z-[9999] size-full"
       />
+      {purchaseOpen && (
+        <VotePurchaseModal
+          open
+          onOpenChange={setPurchaseOpen}
+          countries={purchasableCountries}
+          initialCountryId={purchaseCountryId}
+        />
+      )}
       {/* 1. Compact Editorial Header */}
       <div className="shrink-0 mb-3">
         <div className="flex items-center justify-between mb-1.5">
@@ -162,10 +184,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         {/* Table Column Headers */}
         <div className="shrink-0 grid grid-cols-12 px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[10px] uppercase tracking-wider text-zinc-500">
           <div className="col-span-1"># Rank</div>
-          <div className="col-span-6">Country</div>
-          <div className="col-span-2 text-center">Up / Down</div>
-          <div className="col-span-1 text-center">Score</div>
-          <div className="col-span-2 text-center">Cast</div>
+          <div className="col-span-7">Country</div>
+          <div className="col-span-1 text-end">Score</div>
+          <div className="col-span-3 text-end pr-14">Actions</div>
         </div>
 
         {/* 3. The Dedicated Scrolling Body */}
@@ -190,6 +211,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                 key={item.country.id}
                 rankedCountry={item}
                 onVoteSuccess={handleVoteSuccess}
+                onOpenPurchase={openPurchaseModal}
               />
             ))
           )}
