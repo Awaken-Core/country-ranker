@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "cross-env SKIP_ENV_VALIDATION=true tsx --test test/country-ranking.test.ts",
-    "db:seed": "tsx prisma/seed.ts",
-    "keygen": "bun run scripts/key-gen.ts"
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -48,6 +47,7 @@
     "lucide-react": "^1.18.0",
     "motion": "^12.42.2",
     "next": "16.0.10",
+    "next-intl": "^4.14.9",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.5.0",
     "react": "19.2.1",

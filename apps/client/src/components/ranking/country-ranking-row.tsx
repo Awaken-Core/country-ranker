@@ -1,7 +1,9 @@
 "use client";
+import {useLocale} from "next-intl";
 
 import React from "react";
-import Link from "next/link";
+import {countryName} from '@/i18n/country-name';
+import {Link} from "@/i18n/navigation";
 import { motion } from "motion/react";
 import { CountryFlag } from "@/components/country-flag";
 import { RankedCountryDTO } from "@/modules/ranking/ranking.types";
@@ -21,6 +23,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
   onVoteSuccess,
   onOpenPurchase,
 }) => {
+  const locale = useLocale();
   const { rank, country, score } = rankedCountry;
 
   const isGold = rank === 1;
@@ -32,7 +35,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       whileHover={{ x: 2 }}
       transition={{ duration: 0.12, ease: "easeOut" }}
       className={cn(
-        "group grid grid-cols-12 items-center px-4 py-2.5 rounded-lg border text-xs transition-colors",
+        "group grid grid-cols-[28px_minmax(0,1fr)_28px_124px] sm:grid-cols-12 items-center px-2 sm:px-4 py-2.5 rounded-lg border text-xs transition-colors",
         "relative z-0",
         isGold
           ? "bg-[#14120C]/90 border-amber-600/30 hover:border-amber-500/50 hover:bg-[#19150E]"
@@ -70,7 +73,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       {/* Country Name + Flag + Code (cols 3-8) */}
       <Link
         href={`/country/${country.slug}`}
-        className="col-span-7 flex items-center gap-2.5 min-w-0 pr-2"
+        className="col-span-1 sm:col-span-7 flex items-center gap-1.5 sm:gap-2.5 min-w-0 pr-2"
       >
         <CountryFlag
           code={country.code}
@@ -78,9 +81,9 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
           className="rounded-[2px] shadow-sm shrink-0"
         />
         <span className="font-medium text-zinc-200 group-hover:text-white transition-colors truncate">
-          {country.name}
+          {countryName(locale, country.code, country.name)}
         </span>
-        <span className="font-mono text-[10px] text-zinc-500 uppercase shrink-0">
+        <span className="hidden sm:inline font-mono text-[10px] text-zinc-500 uppercase shrink-0">
           {country.code}
         </span>
       </Link>
@@ -88,15 +91,15 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       {/* Net score */}
       <div className="col-span-1 flex items-center justify-end">
         <span className="font-mono text-xs font-semibold text-zinc-300 group-hover:text-white tabular-nums transition-colors">
-          {score.toLocaleString()}
+          {score.toLocaleString(locale)}
         </span>
       </div>
 
       {/* Actions */}
-      <div className="col-span-3 flex items-center justify-end font-mono text-[11px]">
+      <div className="col-span-1 sm:col-span-3 flex items-center justify-end font-mono text-[11px]">
         <LeaderboardVoteActions
           slug={country.slug}
-          countryName={country.name}
+          countryName={countryName(locale, country.code, country.name)}
           onVoteSuccess={onVoteSuccess}
           onOpenPurchase={() => onOpenPurchase(country.id)}
         />

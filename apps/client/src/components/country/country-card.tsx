@@ -1,7 +1,9 @@
 "use client";
+import {useTranslations, useLocale} from "next-intl";
 
 import React from "react";
-import Link from "next/link";
+import {countryName} from '@/i18n/country-name';
+import {Link} from "@/i18n/navigation";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { CountryFlag } from "@/components/country-flag";
@@ -14,6 +16,8 @@ interface CountryCardProps {
 }
 
 export const CountryCard: React.FC<CountryCardProps> = ({ country, className }) => {
+  const t = useTranslations('UI');
+  const locale = useLocale();
   return (
     <Link href={`/country/${country.slug}`} className="block h-full">
       <motion.div
@@ -33,19 +37,19 @@ export const CountryCard: React.FC<CountryCardProps> = ({ country, className }) 
           </div>
 
           <h3 className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors truncate">
-            {country.name}
+            {countryName(locale, country.code, country.name)}
           </h3>
         </div>
 
         <div className="mt-4 pt-3 border-t border-white/[0.05] flex items-center justify-between text-xs font-mono">
           <div className="flex items-baseline gap-1">
             <span className="text-zinc-200 font-semibold tabular-nums">
-              {country.totalUpvotes.toLocaleString()}
+              {country.totalUpvotes.toLocaleString(locale)}
             </span>
-            <span className="text-[10px] text-zinc-500">votes</span>
+            <span className="text-[10px] text-zinc-500">{t('votes')}</span>
           </div>
           <div className="flex items-center gap-1 text-zinc-400 group-hover:text-white transition-colors text-[11px]">
-            <span>View</span>
+            <span>{t('view')}</span>
             <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
           </div>
         </div>

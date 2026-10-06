@@ -1,7 +1,9 @@
 "use client";
+import {useTranslations, useLocale} from "next-intl";
 
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import {countryName} from '@/i18n/country-name';
+import {Link} from "@/i18n/navigation";
 import { motion } from "motion/react";
 import { Search, X, ArrowRight } from "lucide-react";
 import { RankedCountryDTO } from "@/modules/ranking/ranking.types";
@@ -18,6 +20,8 @@ interface LeaderboardProps {
 export const Leaderboard: React.FC<LeaderboardProps> = ({
   initialRankings,
 }) => {
+  const t = useTranslations('UI');
+  const locale = useLocale();
   const confettiRef = useRef<ConfettiRef>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "top20" | "top50">("all");
@@ -43,14 +47,15 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             : ["#ff4d4d", "#ff8080", "#ffffff"],
       });
       toast.success(
-        `🎉 You ${voteType === "UPVOTE" ? "upvoted" : "downvoted"} ${countryName}`,
+        t(voteType === 'UPVOTE' ? 'upvoteSuccess' : 'downvoteSuccess', {country: countryName}),
       );
     },
-    [],
+    [t],
   );
 
   const filtered = initialRankings.filter(
     (item) =>
+      countryName(locale, item.country.code, item.country.name).toLowerCase().includes(search.toLowerCase().trim()) ||
       item.country.name.toLowerCase().includes(search.toLowerCase().trim()) ||
       item.country.code.toLowerCase().includes(search.toLowerCase().trim()),
   );
@@ -91,7 +96,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
             <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
-              Realtime Global Ranking
+              {t('realtime')}
             </span>
           </div>
 
@@ -99,17 +104,17 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             href="/countries"
             className="group inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors"
           >
-            <span>All countries directory</span>
+            <span>{t('directoryLink')}</span>
             <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            Global Country Leaderboard
+            {t('leaderboard')}
           </h1>
           <p className="text-xs text-zinc-400">
-            Ranked by verified sovereign community popularity.
+            {t('rankingDescription')}
           </p>
         </div>
       </div>
@@ -130,7 +135,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   : "text-zinc-400 hover:text-white",
               )}
             >
-              All Ranked ({initialRankings.length})
+              {t('allRanked', {count: initialRankings.length})}
             </button>
             <button
               type="button"
@@ -142,7 +147,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   : "text-zinc-400 hover:text-white",
               )}
             >
-              Top 20
+              {t('top', {count: 20})}
             </button>
             <button
               type="button"
@@ -154,7 +159,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   : "text-zinc-400 hover:text-white",
               )}
             >
-              Top 50
+              {t('top', {count: 50})}
             </button>
           </div>
 
@@ -163,7 +168,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-zinc-500 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search country or ISO code..."
+              placeholder={t('search')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-8 bg-[#080808] border border-white/[0.08] rounded-lg pl-8 pr-7 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400/20 transition-all"
@@ -173,7 +178,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                 type="button"
                 onClick={() => setSearch("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-zinc-400 hover:text-white rounded transition-colors"
-                aria-label="Clear search"
+                aria-label={t('clearSearch')}
               >
                 <X className="size-3.5" />
               </button>
@@ -182,11 +187,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         </div>
 
         {/* Table Column Headers */}
-        <div className="shrink-0 grid grid-cols-12 px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[10px] uppercase tracking-wider text-zinc-500">
-          <div className="col-span-1"># Rank</div>
-          <div className="col-span-7">Country</div>
-          <div className="col-span-1 text-end">Score</div>
-          <div className="col-span-3 text-end pr-14">Actions</div>
+        <div className="shrink-0 grid grid-cols-[28px_minmax(0,1fr)_28px_124px] sm:grid-cols-12 mx-2 px-2 sm:mx-0 sm:px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[10px] uppercase tracking-wider text-zinc-500">
+          <div className="col-span-1 truncate" title={t('rank')}>{t('rank')}</div>
+          <div className="col-span-1 sm:col-span-7 truncate">{t('country')}</div>
+          <div className="col-span-1 text-end truncate" title={t('score')}>{t('score')}</div>
+          <div className="col-span-1 sm:col-span-3 text-end sm:pr-14 truncate">{t('actions')}</div>
         </div>
 
         {/* 3. The Dedicated Scrolling Body */}
@@ -199,10 +204,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               className="h-48 flex flex-col items-center justify-center text-center p-4"
             >
               <p className="text-zinc-400 text-xs font-mono">
-                No matching country found.
+                {t('noResults')}
               </p>
               <p className="text-zinc-600 text-[11px] mt-1">
-                Try searching by official name or 2-letter ISO code.
+                {t('searchHint')}
               </p>
             </motion.div>
           ) : (
@@ -219,8 +224,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
         {/* Panel Footer / Status bar */}
         <div className="shrink-0 px-4 py-2 border-t border-white/[0.04] bg-[#0A0A0A] flex items-center justify-between text-[11px] font-mono text-zinc-500">
-          <span>Showing {displayedList.length} sovereign states</span>
-          <span>Verified PostgreSQL Ledger</span>
+          <span>{t('showing', {count: displayedList.length})}</span>
+          <span>{t('verifiedLedger')}</span>
         </div>
       </div>
     </div>

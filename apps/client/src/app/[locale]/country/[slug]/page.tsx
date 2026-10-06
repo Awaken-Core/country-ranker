@@ -1,6 +1,8 @@
+import {getTranslations, getLocale} from 'next-intl/server';
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import {countryName} from '@/i18n/country-name';
+import {Link} from "@/i18n/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,22 +23,26 @@ interface PageProps {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
+  const locale = await getLocale();
+  const t=await getTranslations('UI');
   const { slug } = await params;
   const country = await countryService.getCountryBySlug(slug);
 
   if (!country) {
     return {
-      title: "Country Not Found | CountryRank",
+      title: `${t('countryNotFound')} | CountryRank`,
     };
   }
 
   return {
-    title: `${country.name} (${country.code}) - Global Standing | CountryRank`,
-    description: `Track ${country.name}'s verified standing on the global country leaderboard with ${country.totalUpvotes.toLocaleString()} upvotes.`,
+    title: `${countryName(locale, country.code, country.name)} (${country.code}) - ${t('standing')} | CountryRank`,
+    description: t('rankingDescription'),
   };
 }
 
 export default async function CountryDetailPage({ params }: PageProps) {
+  const t = await getTranslations('UI');
+  const locale = await getLocale();
   const { slug } = await params;
   const country = await countryService.getCountryBySlug(slug);
 
@@ -57,13 +63,13 @@ export default async function CountryDetailPage({ params }: PageProps) {
             className="group inline-flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
-            <span>Leaderboard</span>
+            <span>{t('leaderboard')}</span>
           </Link>
           <Link
             href="/countries"
             className="group inline-flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors"
           >
-            <span>All Countries</span>
+            <span>{t('allCountries')}</span>
             <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
@@ -80,14 +86,14 @@ export default async function CountryDetailPage({ params }: PageProps) {
               <div>
                 <div className="flex items-center gap-2.5 justify-center sm:justify-start">
                   <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                    {country.name}
+                    {countryName(locale, country.code, country.name)}
                   </h1>
                   <span className="font-mono text-xs text-zinc-400 uppercase tracking-wider bg-white/[0.05] px-1.5 py-0.5 rounded border border-white/[0.08]">
                     {country.code}
                   </span>
                 </div>
                 <p className="text-xs text-zinc-400 mt-1">
-                  Verified sovereign entity ledger
+                  {t('verifiedLedger')}
                 </p>
               </div>
             </div>
@@ -95,7 +101,7 @@ export default async function CountryDetailPage({ params }: PageProps) {
             {/* Compact Rank Display */}
             <div className="text-center sm:text-right bg-[#080808] px-4 py-2.5 rounded-lg border border-white/[0.06]">
               <div className="font-mono text-[10px] uppercase tracking-wider text-zinc-400 mb-0.5">
-                Current Standing
+                {t('standing')}
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-extrabold text-white">
                 {formattedRank}
@@ -108,36 +114,36 @@ export default async function CountryDetailPage({ params }: PageProps) {
             <div className="p-3.5 rounded-lg bg-[#080808] border border-white/[0.05] hover:border-white/[0.1] transition-colors">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
-                  Upvotes
+                  {t('upvotes')}
                 </span>
                 <ThumbsUp className="size-3 text-emerald-400" />
               </div>
               <div className="font-mono text-base sm:text-lg font-bold text-white mt-1 tabular-nums">
-                {country.totalUpvotes.toLocaleString()}
+                {country.totalUpvotes.toLocaleString(locale)}
               </div>
             </div>
 
             <div className="p-3.5 rounded-lg bg-[#080808] border border-white/[0.05] hover:border-white/[0.1] transition-colors">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
-                  Downvotes
+                  {t('downvotes')}
                 </span>
                 <ThumbsDown className="size-3 text-red-400" />
               </div>
               <div className="font-mono text-base sm:text-lg font-bold text-zinc-400 mt-1 tabular-nums">
-                {country.totalDownvotes.toLocaleString()}
+                {country.totalDownvotes.toLocaleString(locale)}
               </div>
             </div>
 
             <div className="col-span-2 sm:col-span-1 p-3.5 rounded-lg bg-[#080808] border border-white/[0.05] hover:border-white/[0.1] transition-colors">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
-                  Trend
+                  {t('trend')}
                 </span>
                 <TrendingUp className="size-3 text-emerald-400" />
               </div>
               <div className="font-mono text-base sm:text-lg font-bold text-emerald-400 mt-1">
-                Active
+                {t('active')}
               </div>
             </div>
           </div>
@@ -145,7 +151,7 @@ export default async function CountryDetailPage({ params }: PageProps) {
           {/* Voting */}
           <VotingPanel
             slug={country.slug}
-            countryName={country.name}
+            countryName={countryName(locale, country.code, country.name)}
             initialUpvotes={country.totalUpvotes}
             initialDownvotes={country.totalDownvotes}
           />

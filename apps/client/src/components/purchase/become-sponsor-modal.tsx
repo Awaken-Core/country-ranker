@@ -1,4 +1,5 @@
 "use client";
+import {useTranslations, useLocale} from "next-intl";
 
 import { useState } from "react";
 import { toast } from "sonner";
@@ -20,6 +21,8 @@ export default function BecomeSponsorModal({
   open,
   onOpenChange,
 }: BecomeSponsorModalProps) {
+  const t=useTranslations('UI');
+  const locale=useLocale();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -30,7 +33,7 @@ export default function BecomeSponsorModal({
       const response = await fetch("/api/v1/purchase/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ purchaseType: "SPONSOR" }),
+        body: JSON.stringify({ purchaseType: "SPONSOR", locale }),
       });
       const result = (await response.json()) as {
         checkoutUrl?: string;
@@ -38,13 +41,13 @@ export default function BecomeSponsorModal({
       };
 
       if (!response.ok || !result.checkoutUrl) {
-        throw new Error(result.error || "Could not start checkout.");
+        throw new Error(result.error || t('checkoutError'));
       }
 
       window.location.assign(result.checkoutUrl);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Could not start checkout.",
+        error instanceof Error ? error.message : t('checkoutError'),
       );
       setIsCheckingOut(false);
     }
@@ -55,9 +58,9 @@ export default function BecomeSponsorModal({
       <DialogContent className="border-white/10 bg-[#0d0d0e] sm:max-w-md">
         <form onSubmit={handleSubmit} className="space-y-5">
           <DialogHeader>
-            <DialogTitle>Advertise on Country</DialogTitle>
+            <DialogTitle>{t('advertise')}</DialogTitle>
             <DialogDescription>
-              Reach 200K+ entrepreneurs and founders every month
+              {t('sponsorReach')}
             </DialogDescription>
           </DialogHeader>
 
@@ -67,8 +70,8 @@ export default function BecomeSponsorModal({
             className="h-9 w-full bg-amber-400 font-semibold text-black hover:bg-amber-300"
           >
             {isCheckingOut
-              ? "Opening secure checkout..."
-              : "Lock the next spot for $100"}
+              ? t('checkoutLoading')
+              : t('reservePrice', {price: new Intl.NumberFormat(locale, {style: 'currency', currency: 'USD'}).format(100)})}
           </Button>
         </form>
       </DialogContent>

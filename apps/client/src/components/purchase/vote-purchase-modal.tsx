@@ -1,5 +1,7 @@
 "use client";
+import {useTranslations, useLocale} from "next-intl";
 
+import {countryName} from '@/i18n/country-name';
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -47,6 +49,9 @@ export default function VotePurchaseModal({
   countries,
   initialCountryId,
 }: VotePurchaseModalProps) {
+  const t=useTranslations('UI');
+  const locale=useLocale();
+  const formatPrice=(price: number) => new Intl.NumberFormat(locale, {style: 'currency', currency: 'USD'}).format(price);
   const [countryId, setCountryId] = useState(
     initialCountryId ?? countries[0]?.id ?? "",
   );
@@ -69,7 +74,7 @@ export default function VotePurchaseModal({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedCountry) {
-      toast.error("Select a country before purchasing votes.");
+      toast.error(t('selectCountry'));
       return;
     }
 
@@ -81,6 +86,7 @@ export default function VotePurchaseModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           purchaseType: "VOTE",
+          locale,
           countryId: selectedCountry.id,
           voteCount: purchase.voteCount,
           voteType,
@@ -92,13 +98,13 @@ export default function VotePurchaseModal({
       };
 
       if (!response.ok || !result.checkoutUrl) {
-        throw new Error(result.error || "Could not start checkout.");
+        throw new Error(result.error || t('checkoutError'));
       }
 
       window.location.assign(result.checkoutUrl);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Could not start checkout.",
+        error instanceof Error ? error.message : t('checkoutError'),
       );
       setIsCheckingOut(false);
     }
@@ -109,9 +115,9 @@ export default function VotePurchaseModal({
       <DialogContent className="border-white/10 bg-[#0d0d0e] sm:max-w-md">
         <form onSubmit={handleSubmit} className="space-y-5">
           <DialogHeader>
-            <DialogTitle>Purchase country votes</DialogTitle>
+            <DialogTitle>{t('purchaseVotes')}</DialogTitle>
             <DialogDescription>
-              Choose a country and the number of votes you want to purchase.
+              {t('purchaseDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -122,7 +128,7 @@ export default function VotePurchaseModal({
                   code={selectedCountry.flag || selectedCountry.code}
                   size="sm"
                 />
-                <span>{selectedCountry.name}</span>
+                <span>{countryName(locale, selectedCountry.code, selectedCountry.name)}</span>
                 <span className="font-mono text-[10px] text-amber-300/60">
                   ({selectedCountry.code})
                 </span>
@@ -130,26 +136,26 @@ export default function VotePurchaseModal({
             )}
             <div className="mt-1 flex items-end justify-between gap-4">
               <p className="text-2xl font-bold text-white">
-                {purchase.voteCount.toLocaleString()} {voteType.toLowerCase()}s
+                {purchase.voteCount.toLocaleString(locale)} {t(voteType === 'UPVOTE' ? 'upvotes' : 'downvotes')}
               </p>
               <p className="font-mono text-sm font-semibold text-amber-300">
-                ${purchase.price.toFixed(2)}
+                {formatPrice(purchase.price)}
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="purchase-country">Country</Label>
+            <Label htmlFor="purchase-country">{t('country')}</Label>
             <Select value={countryId} onValueChange={setCountryId}>
               <SelectTrigger id="purchase-country" className="h-10 w-full">
-                <SelectValue placeholder="Select a country">
+                <SelectValue placeholder={t('selectCountry')}>
                   {selectedCountry && (
                     <span className="flex items-center gap-2">
                       <CountryFlag
                         code={selectedCountry.flag || selectedCountry.code}
                         size="sm"
                       />
-                      <span>{selectedCountry.name}</span>
+                      <span>{countryName(locale, selectedCountry.code, selectedCountry.name)}</span>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         ({selectedCountry.code})
                       </span>
@@ -164,7 +170,7 @@ export default function VotePurchaseModal({
                       code={country.flag || country.code}
                       size="sm"
                     />
-                    <span>{country.name}</span>
+                    <span>{countryName(locale, country.code, country.name)}</span>
                     <span className="font-mono text-[10px] text-muted-foreground">
                       ({country.code})
                     </span>
@@ -175,7 +181,7 @@ export default function VotePurchaseModal({
           </div>
 
           <fieldset className="space-y-2">
-            <legend className="text-sm font-medium">Vote type</legend>
+            <legend className="text-sm font-medium">{t('voteType')}</legend>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 type="button"
@@ -188,7 +194,7 @@ export default function VotePurchaseModal({
                     : "border-white/10 text-zinc-400"
                 }
               >
-                ▲ Upvote
+                ▲ {t('upvotes')}
               </Button>
               <Button
                 type="button"
@@ -201,13 +207,13 @@ export default function VotePurchaseModal({
                     : "border-white/10 text-zinc-400"
                 }
               >
-                ▼ Downvote
+                ▼ {t('downvotes')}
               </Button>
             </div>
           </fieldset>
 
           <div className="space-y-2">
-            <Label htmlFor="purchase-vote-count">Number of votes</Label>
+            <Label htmlFor="purchase-vote-count">{t('voteCount')}</Label>
             <Input
               id="purchase-vote-count"
               name="voteCount"
@@ -220,23 +226,21 @@ export default function VotePurchaseModal({
               className="h-8"
             />
             <p className="text-xs text-muted-foreground">
-              Votes cost $0.10 each. Maximum{" "}
-              {MAX_PURCHASE_VOTES.toLocaleString()}
-              {" votes per purchase."}
+              {t('votePrice', {price: formatPrice(0.1), count: MAX_PURCHASE_VOTES})}
             </p>
           </div>
 
           <div className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-black/30 px-4 py-3">
             <div>
-              <p className="text-xs text-muted-foreground">You receive</p>
+              <p className="text-xs text-muted-foreground">{t('receive')}</p>
               <p className="font-semibold text-white">
-                {purchase.voteCount.toLocaleString()} {voteType.toLowerCase()}s
+                {purchase.voteCount.toLocaleString(locale)} {t(voteType === 'UPVOTE' ? 'upvotes' : 'downvotes')}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Total</p>
+              <p className="text-xs text-muted-foreground">{t('total')}</p>
               <p className="font-mono text-lg font-bold text-amber-300">
-                ${purchase.price.toFixed(2)}
+                {formatPrice(purchase.price)}
               </p>
             </div>
           </div>
@@ -252,8 +256,8 @@ export default function VotePurchaseModal({
             className="h-8 w-full bg-amber-400 font-semibold text-black hover:bg-amber-300"
           >
             {isCheckingOut
-              ? "Opening secure checkout..."
-              : `Purchase ${purchase.voteCount.toLocaleString()} ${voteType.toLowerCase()}s for $${purchase.price.toFixed(2)}`}
+              ? t('checkoutLoading')
+              : t('purchaseButton', {count: purchase.voteCount, price: formatPrice(purchase.price)})}
           </Button>
         </form>
       </DialogContent>

@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
+import {getTranslations} from 'next-intl/server';
 import { headers } from "next/headers";
 import { CheckCircle2, CreditCard, LayoutPanelTop } from "lucide-react";
 import { GlobalPageLayout } from "@/components/layout/global-page-layout";
 import { auth } from "@/lib/auth";
 import { client } from "@/lib/db";
 
-export const metadata: Metadata = {
-  title: "Sponsor Dashboard | CountryRank",
-  description: "Manage your CountryRank sponsor cards and advertising slots.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t=await getTranslations('UI');
+  return {title: `${t('sponsorWorkspace')} | CountryRank`, description: t('sponsorDescription')};
+}
 
 export const dynamic = "force-dynamic";
 
 export default async function SponsorPage() {
+  const t=await getTranslations('UI');
   const session = await auth.api.getSession({ headers: await headers() });
 
   const dashboard = session
@@ -56,23 +58,22 @@ export default async function SponsorPage() {
       <section className="flex min-h-0 flex-1 flex-col overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0d0d0e] p-6">
         <div className="border-b border-white/[0.08] pb-5">
           <p className="font-mono text-[10px] tracking-widest text-amber-400 uppercase">
-            Sponsor workspace
+            {t('sponsorWorkspace')}
           </p>
           <h1 className="mt-2 text-2xl font-semibold text-white">
-            Cards and advertising slots
+            {t('sponsorCards')}
           </h1>
           <p className="mt-1 text-sm text-zinc-400">
-            Configure sponsor cards and connect them to purchased slots.
+            {t('sponsorDescription')}
           </p>
         </div>
 
         {!session ? (
           <div className="my-auto rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-6 text-center">
             <CheckCircle2 className="mx-auto size-8 text-amber-400" />
-            <h2 className="mt-3 font-semibold text-white">Payment received</h2>
+            <h2 className="mt-3 font-semibold text-white">{t('paymentReceived')}</h2>
             <p className="mt-1 text-sm text-zinc-400">
-              Sign in with the same email used at checkout to manage your
-              sponsor card and slot.
+              {t('sponsorLogin')}
             </p>
           </div>
         ) : (
@@ -82,7 +83,7 @@ export default async function SponsorPage() {
               <p className="mt-3 text-2xl font-semibold text-white">
                 {unassignedPurchases}
               </p>
-              <p className="text-xs text-zinc-400">Unassigned paid slots</p>
+              <p className="text-xs text-zinc-400">{t('unassignedSlots')}</p>
             </div>
 
             <div className="rounded-xl border border-white/[0.08] bg-black/20 p-5">
@@ -90,7 +91,7 @@ export default async function SponsorPage() {
               <p className="mt-3 text-2xl font-semibold text-white">
                 {dashboard?.sponsors.length ?? 0}
               </p>
-              <p className="text-xs text-zinc-400">Sponsor cards</p>
+              <p className="text-xs text-zinc-400">{t('sponsorCards')}</p>
             </div>
 
             {dashboard?.sponsors.map((sponsor) => (
@@ -106,7 +107,7 @@ export default async function SponsorPage() {
                     </p>
                   </div>
                   <span className="font-mono text-[10px] text-zinc-500 uppercase">
-                    {sponsor.slots.length > 0 ? "Active" : "Draft"}
+                    {t(sponsor.slots.length > 0 ? 'active' : 'draft')}
                   </span>
                 </div>
               </article>

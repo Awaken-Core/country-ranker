@@ -2,6 +2,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getClientIp } from "./lib/rate-limit/ip";
 import { checkRateLimit, maskIdentifier } from "./lib/rate-limit/limiters";
 import { createRateLimitResponse } from "./lib/rate-limit/response";
+import createIntlMiddleware from 'next-intl/middleware';
+import {routing} from './i18n/routing';
+
+const intlMiddleware = createIntlMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -52,7 +56,7 @@ export async function middleware(request: NextRequest) {
   // We let them pass to their specific multi-layer rate limiters in the route handlers
   // to avoid double-counting or conflicts with stricter/user-based limiters.
   const isSpecializedEndpoint =
-    pathname.includes("/vote") ||
+    (pathname.startsWith('/api/') && pathname.includes("/vote")) ||
     (pathname.startsWith("/api/v1/admin") && request.method !== "GET");
 
   if (isSpecializedEndpoint) {
@@ -70,7 +74,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return pathname.startsWith('/api/') ? NextResponse.next() : intlMiddleware(request);
 }
 
 export const config = {

@@ -12,7 +12,7 @@ import { AdminUsersTab } from "@/components/admin/tabs/admin-users-tab";
 import { AdminManagementTab } from "@/components/admin/tabs/admin-management-tab";
 import { AdminAuditLogsTab } from "@/components/admin/tabs/admin-audit-logs-tab";
 import { Loader2, ShieldX } from "lucide-react";
-import Link from "next/link";
+import {Link} from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 
 export default function AdminDashboardPage() {
