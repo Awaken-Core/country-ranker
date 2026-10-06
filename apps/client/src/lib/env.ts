@@ -16,6 +16,8 @@ export const env = createEnv({
     UPLOADTHING_TOKEN: z.string().optional(),
     // Set to "true" to require email verification before a user can vote.
     VOTING_REQUIRE_VERIFIED_EMAIL: z.string().optional(),
+    UPSTASH_REDIS_REST_URL: z.string().optional(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_BASE_URL: z.string().min(1),
