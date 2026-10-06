@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import {Link} from "@/i18n/navigation";
 import { useAdminStore, AdminTab } from "@/stores/use-admin-store";
 import { UserRole, AdminPermission } from "@/modules/admin/admin.types";
 import {

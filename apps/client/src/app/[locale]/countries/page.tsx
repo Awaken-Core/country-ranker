@@ -1,12 +1,13 @@
 import { Metadata } from "next";
+import {getTranslations} from 'next-intl/server';
 import { countryService } from "@/modules/countries/country.service";
 import { CountryListClient } from "@/components/country/country-list-client";
 import { GlobalPageLayout } from "@/components/layout/global-page-layout";
 
-export const metadata: Metadata = {
-  title: "Explore Countries | CountryRank",
-  description: "Browse all sovereign nations, check live standing, and view global community voting data.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t=await getTranslations('UI');
+  return {title: `${t('directory')} | CountryRank`, description: t('directoryDescription')};
+}
 
 export const revalidate = 60;
 
