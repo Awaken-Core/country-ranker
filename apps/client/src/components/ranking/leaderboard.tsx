@@ -3,7 +3,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Search, X, ArrowRight } from "lucide-react";
+import { Search, X, ArrowRight, Sparkles } from "lucide-react";
 import { RankedCountryDTO } from "@/modules/ranking/ranking.types";
 import { CountryRankingRow } from "./country-ranking-row";
 import { cn } from "@/lib/utils";
@@ -82,42 +82,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           initialCountryId={purchaseCountryId}
         />
       )}
-      {/* 1. Compact Editorial Header */}
-      <div className="shrink-0 mb-3">
-        <div className="flex items-center justify-between mb-1.5">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
-              Realtime Global Ranking
-            </span>
-          </div>
+      <div className="shrink-0 mb-4 px-1 sm:px-3 pt-2">
 
-          <Link
-            href="/countries"
-            className="group inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors"
-          >
-            <span>All countries directory</span>
-            <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            Global Country Leaderboard
-          </h1>
-          <p className="text-xs text-zinc-400">
-            Ranked by verified sovereign community popularity.
-          </p>
-        </div>
       </div>
 
       {/* 2. Self-Contained Leaderboard Panel with Dedicated Internal Scroll */}
-      <div className="flex-1 min-h-0 flex flex-col rounded-xl border border-white/[0.08] bg-[#0C0C0C] overflow-hidden shadow-2xl">
+      <div className="flex-1 min-h-0 flex flex-col rounded-xl border border-white/[0.1] bg-[#0C0C0C] overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
         {/* Panel Toolbar (Sticky top inside container) */}
-        <div className="shrink-0 px-4 py-2.5 border-b border-white/[0.06] bg-[#0E0E0E] flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="shrink-0 px-4 py-3 border-b border-white/[0.07] bg-[#111111] flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Filter Pills - exactly matching reference image */}
           <div className="flex items-center gap-2 self-start sm:self-center">
             <button
@@ -219,8 +191,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
         {/* Panel Footer / Status bar */}
         <div className="shrink-0 px-4 py-2 border-t border-white/[0.04] bg-[#0A0A0A] flex items-center justify-between text-[11px] font-mono text-zinc-500">
-          <span>Showing {displayedList.length} sovereign states</span>
-          <span>Verified PostgreSQL Ledger</span>
+          <span className="md:block hidden">Showing {displayedList.length} sovereign states</span>
+          <span>Show Sponsors</span>
+          <div className="flex items-center gap-2">
+            <Link href="/terms-and-conditions"  className="text-zinc-500">Terms & Conditions</Link>
+          </div>
         </div>
       </div>
     </div>

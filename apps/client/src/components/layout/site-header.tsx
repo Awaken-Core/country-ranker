@@ -1,33 +1,45 @@
 import React from "react";
 import Link from "next/link";
-import { Globe } from "lucide-react";
+import { BellDot, Globe } from "lucide-react";
 import { HeaderAuth } from "@/components/header-auth";
+import { Button } from "../ui/button";
 
 export const SiteHeader: React.FC = () => {
   return (
-    <header className="h-14 shrink-0 border-b border-white/[0.08] bg-[#0A0A0A] w-full z-40 font-sans">
-      <div className="h-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+    <header className="h-12 shrink-0 mb-3 z-40 font-sans shadow-[0_16px_60px_rgba(0,0,0,0.35)]">
+      <div className="h-full px-3 sm:px-4 flex items-center justify-between">
         {/* Left: Wordmark with Globe icon */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-6 h-6 rounded-md flex items-center justify-center bg-blue-500/15 text-blue-400 border border-blue-500/30 group-hover:border-blue-400 group-hover:bg-blue-500/25 transition-all">
-            <Globe className="size-3.5" />
+        <div className="flex items-center gap-1 group">
+          <Link href="/" className="flex items-center gap-1 group">
+            <div className="w-6 h-6 rounded-md flex items-center justify-center transition-all">
+              <Globe className="size-3.5" />
+            </div>
+            <span className="text-[16px] font-semibold tracking-tight text-white group-hover:text-zinc-200 transition-colors">
+              CountryRank
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-4 group px-6">
+            <Link
+              href="/countries"
+              className="text-xs text-zinc-400 hover:text-white/80 transition-colors font-normal rounded-md hover:underline"
+            >
+              All Countries
+            </Link>
+             <Link
+              href="/sponsor"
+              className="text-xs text-zinc-400 hover:text-white/80 transition-colors font-normal rounded-md hover:underline"
+            >
+              Sponsor
+            </Link>
           </div>
-          <span className="text-sm font-semibold tracking-tight text-white group-hover:text-zinc-200 transition-colors">
-            CountryRank
-          </span>
-          <span className="hidden sm:inline-block text-[10px] font-mono tracking-widest text-zinc-500 uppercase border-l border-white/[0.08] pl-2.5 ml-1">
-            Global Standing
-          </span>
-        </Link>
+        </div>
 
         {/* Right: Directory Link & Auth Dialog */}
-        <div className="flex items-center gap-4">
-          <Link
-            href="/countries"
-            className="text-xs text-zinc-400 hover:text-white transition-colors font-medium px-2 py-1 rounded-md hover:bg-white/[0.05]"
-          >
-            All Countries
-          </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Button variant="ghost" className="border border-zinc-600 rounded-full bg-zinc-900">
+            <BellDot />
+          </Button>
           <HeaderAuth />
         </div>
       </div>

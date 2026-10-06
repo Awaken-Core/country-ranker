@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useSession } from "@/lib/auth-client";
 
 interface BecomeSponsorModalProps {
   open: boolean;
@@ -20,34 +21,42 @@ export default function BecomeSponsorModal({
   open,
   onOpenChange,
 }: BecomeSponsorModalProps) {
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsCheckingOut(true);
-
-    try {
+  const { data: session, isPending: sessionPending } = useSession();
+  const checkoutMutation = useMutation({
+    mutationFn: async () => {
       const response = await fetch("/api/v1/purchase/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ purchaseType: "SPONSOR" }),
+        body: JSON.stringify({ purchaseType: "SPONSOR_NEW" }),
       });
       const result = (await response.json()) as {
         checkoutUrl?: string;
         error?: string;
       };
-
       if (!response.ok || !result.checkoutUrl) {
         throw new Error(result.error || "Could not start checkout.");
       }
+      return result.checkoutUrl;
+    },
+    onSuccess: (checkoutUrl) => window.location.assign(checkoutUrl),
+    onError: (error) => toast.error(error.message),
+  });
 
-      window.location.assign(result.checkoutUrl);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Could not start checkout.",
-      );
-      setIsCheckingOut(false);
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!session) {
+      toast.error("Sign in before becoming a sponsor.");
+      return;
     }
+    if (session.user.role === "CUSTOMER") {
+      window.location.assign("/sponsor");
+      return;
+    }
+    if (session.user.role !== "USER") {
+      toast.error("This account cannot create a sponsorship.");
+      return;
+    }
+    checkoutMutation.mutate();
   }
 
   return (
@@ -63,12 +72,14 @@ export default function BecomeSponsorModal({
 
           <Button
             type="submit"
-            disabled={isCheckingOut}
+            disabled={sessionPending || checkoutMutation.isPending}
             className="h-9 w-full bg-amber-400 font-semibold text-black hover:bg-amber-300"
           >
-            {isCheckingOut
+            {checkoutMutation.isPending
               ? "Opening secure checkout..."
-              : "Lock the next spot for $100"}
+              : session?.user.role === "CUSTOMER"
+                ? "Manage sponsor"
+                : "Lock the next spot for $100"}
           </Button>
         </form>
       </DialogContent>

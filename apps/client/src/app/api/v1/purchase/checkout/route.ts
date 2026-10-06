@@ -19,7 +19,10 @@ const checkoutSchema = z.discriminatedUnion("purchaseType", [
     voteType: z.enum(["UPVOTE", "DOWNVOTE"]),
   }),
   z.object({
-    purchaseType: z.literal("SPONSOR"),
+    purchaseType: z.literal("SPONSOR_NEW"),
+  }),
+  z.object({
+    purchaseType: z.literal("SPONSOR_RENEW"),
   }),
 ]);
 
@@ -47,11 +50,28 @@ export async function POST(request: Request) {
 
   const input = parsed.data;
   const appUrl = env.NEXT_PUBLIC_APP_BASE_URL.replace(/\/$/, "");
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) return errorResponse("Sign in before making this purchase.", 401);
 
-  if (input.purchaseType === "SPONSOR") {
-    const activeSlotCount = await client.slots.count({
-      where: { isActive: true },
-    });
+  if (input.purchaseType === "SPONSOR_NEW") {
+    const [user, activeSlotCount] = await Promise.all([
+      client.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          sponsors: { select: { id: true } },
+          slots: { take: 1, select: { id: true } },
+        },
+      }),
+      client.slots.count({ where: { isActive: true } }),
+    ]);
+    if (!user) return errorResponse("User not found.", 404);
+    if (user.role !== "USER" || user.sponsors || user.slots.length > 0) {
+      return errorResponse("Existing customers must use sponsor renewal.", 409);
+    }
     if (activeSlotCount >= 20) {
       return errorResponse("All sponsor slots are currently occupied.", 409);
     }
@@ -65,12 +85,13 @@ export async function POST(request: Request) {
             amount: SPONSOR_PRICE_USD * 100,
           },
         ],
+        customer: { email: user.email, name: user.name },
         return_url: `${appUrl}/sponsor?checkout=success`,
         cancel_url: `${appUrl}/?checkout=cancelled`,
         customization: { theme: "dark" },
         metadata: {
-          isSponsor: true,
-          purchase_type: "SPONSOR",
+          paytype: "sponsor_new",
+          user_id: user.id,
         },
       });
 
@@ -85,8 +106,72 @@ export async function POST(request: Request) {
     }
   }
 
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) return errorResponse("Sign in before purchasing votes.", 401);
+  if (input.purchaseType === "SPONSOR_RENEW") {
+    const customer = await client.user.findFirst({
+      where: {
+        id: session.user.id,
+        role: "CUSTOMER",
+        sponsors: { isNot: null },
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        sponsors: {
+          select: {
+            slots: {
+              take: 1,
+              select: {
+                isActive: true,
+                sponsorBillingCycles: {
+                  where: { status: "ACTIVE", endDate: { gt: new Date() } },
+                  take: 1,
+                  select: { id: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!customer) {
+      return errorResponse("A sponsor account is required for renewal.", 403);
+    }
+    const slot = customer.sponsors?.slots[0];
+    if (!slot) return errorResponse("Sponsor slot not found.", 404);
+    if (slot.isActive && slot.sponsorBillingCycles.length > 0) {
+      return errorResponse("The current sponsor billing cycle is still active.", 409);
+    }
+
+    try {
+      const checkout = await dodopayments.checkoutSessions.create({
+        product_cart: [
+          {
+            product_id: env.DODO_PAYMENTS_SPONSOR_PID,
+            quantity: 1,
+            amount: SPONSOR_PRICE_USD * 100,
+          },
+        ],
+        customer: { email: customer.email, name: customer.name },
+        return_url: `${appUrl}/sponsor?checkout=renewed`,
+        cancel_url: `${appUrl}/sponsor?checkout=cancelled`,
+        customization: { theme: "dark" },
+        metadata: {
+          paytype: "sponsor_renew",
+          user_id: customer.id,
+        },
+      });
+
+      if (!checkout.checkout_url) {
+        throw new Error("Dodo Payments did not return a checkout URL.");
+      }
+
+      return NextResponse.json({ checkoutUrl: checkout.checkout_url });
+    } catch (error) {
+      console.error("Unable to create sponsor renewal checkout", error);
+      return errorResponse("Could not start checkout.", 502);
+    }
+  }
 
   const [user, country] = await Promise.all([
     client.user.findUnique({
@@ -135,8 +220,7 @@ export async function POST(request: Request) {
       cancel_url: `${appUrl}/?checkout=cancelled`,
       customization: { theme: "dark" },
       metadata: {
-        isSponsor: false,
-        purchase_type: "VOTE",
+        paytype: "vote",
         user_id: user.id,
         local_payment_id: payment.id,
         country_id: country.id,

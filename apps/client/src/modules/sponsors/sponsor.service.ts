@@ -11,16 +11,22 @@ export class SponsorService {
     const slots = await this.repository.getActiveSlots(SPONSOR_CAPACITY);
 
     return {
-      data: slots.map(({ id, sponsor }) => ({
-        slotId: id,
-        sponsorId: sponsor.id,
-        name: sponsor.name,
-        description: sponsor.description,
-        logo: sponsor.logo,
-        bgColor: sponsor.bgColor,
-        textColor: sponsor.textColor,
-        website: sponsor.website,
-      })),
+      data: slots.flatMap(({ id, sponsor }) =>
+        sponsor
+          ? [
+              {
+                slotId: id,
+                sponsorId: sponsor.id,
+                name: sponsor.name,
+                description: sponsor.description,
+                logo: sponsor.logo,
+                bgColor: sponsor.bgColor,
+                textColor: sponsor.textColor,
+                website: sponsor.website,
+              },
+            ]
+          : [],
+      ),
       capacity: SPONSOR_CAPACITY,
       available: SPONSOR_CAPACITY - slots.length,
     };

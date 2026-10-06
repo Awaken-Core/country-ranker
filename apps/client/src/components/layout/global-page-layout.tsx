@@ -68,14 +68,10 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
 
   return (
     <div
-      className="h-screen w-screen overflow-hidden bg-[#080808] text-[#F5F5F5] flex flex-col font-sans"
+      className="h-screen w-screen overflow-hidden bg-[#070707] text-[#F5F5F5] font-sans"
       suppressHydrationWarning
     >
-      {/* 1. Header (Fixed 56px) */}
-      <SiteHeader />
-
-      {/* 2. 3-Column Shell (Fills remaining viewport height, rails pushed toward outer edges) */}
-      <div className="flex-1 min-h-0 w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between gap-6 lg:gap-8 overflow-hidden">
+      <div className="h-full w-full max-w-[1880px] mx-auto px-3 sm:px-5 py-3 flex justify-between gap-5 lg:gap-8 overflow-hidden">
         {/* Left Promotional Rail (Desktop: pushed far left) */}
         <div className="hidden xl:flex shrink-0 h-full">
           <AdRail
@@ -90,7 +86,8 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
         </div>
 
         {/* Center Main Content Container (Controlled width, centered) */}
-        <main className="w-full max-w-[820px] flex flex-col min-h-0 min-w-0 mx-auto">
+        <main className="w-full max-w-[980px] flex flex-col min-h-0 min-w-0 mx-auto">
+          <SiteHeader />
           {children}
         </main>
 

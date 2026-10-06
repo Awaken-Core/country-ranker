@@ -55,26 +55,28 @@ enum SponsorBillingStatus {
 }
 
 model User {
-  id                String                @id
-  name              String
-  email             String
-  emailVerified     Boolean               @default(false)
-  image             String?
-  role              UserRole              @default(USER)
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  sessions          Session[]
-  accounts          Account[]
-  userPaymentLogs   UserPaymentLog[]
-  payments          Payment[]
-  voteLogs          VoteLog[]
-  pushNotifications PushNotification[]
-  countryVoteFrees  CountryVoteFree[]
-  countryVotePaids  CountryVotePaid[]
-  dailyVoteUsage    DailyVoteUsage[]
-  permissions       UserAdminPermission[]
-  auditLogs         AuditLog[]
-  sponsors          Sponsor[]
+  id                   String                @id
+  name                 String
+  email                String
+  emailVerified        Boolean               @default(false)
+  image                String?
+  role                 UserRole              @default(USER)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  sessions             Session[]
+  accounts             Account[]
+  userPaymentLogs      UserPaymentLog[]
+  payments             Payment[]
+  voteLogs             VoteLog[]
+  pushNotifications    PushNotification[]
+  countryVoteFrees     CountryVoteFree[]
+  countryVotePaids     CountryVotePaid[]
+  dailyVoteUsage       DailyVoteUsage[]
+  permissions          UserAdminPermission[]
+  auditLogs            AuditLog[]
+  sponsors             Sponsor?
+  sponsorBillingCycles SponsorBillingCycle[]
+  slots                Slots[]
 
   @@unique([email])
   @@map("user")
@@ -215,7 +217,7 @@ model VoteLog {
 
 model Sponsor {
   id          String  @id @default(uuid())
-  userId      String?
+  userId      String? @unique
   countryId   String?
   name        String
   description String?
@@ -237,10 +239,12 @@ model Sponsor {
 
 // currently max 20 slots.
 model Slots {
-  id        String  @id @default(uuid())
-  sponsorId String
-  sponsor   Sponsor @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
-  isActive  Boolean @default(true)
+  id        String   @id @default(uuid())
+  userId    String
+  sponsorId String?
+  sponsor   Sponsor? @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isActive  Boolean  @default(true)
 
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
@@ -251,16 +255,18 @@ model Slots {
 
 model SponsorBillingCycle {
   id         String               @id @default(uuid())
-  sponsorId  String
-  slotId     String
+  userId     String
+  sponsorId  String?
+  slotId     String?
   paymentsId String?              @unique @db.Uuid
   startDate  DateTime             @db.Timestamp(3)
   endDate    DateTime             @db.Timestamp(3)
   status     SponsorBillingStatus @default(ACTIVE)
 
-  sponsor  Sponsor  @relation(fields: [sponsorId], references: [id], onDelete: Restrict)
+  sponsor  Sponsor? @relation(fields: [sponsorId], references: [id], onDelete: Restrict)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   payments Payment? @relation(fields: [paymentsId], references: [id], onDelete: Restrict)
-  slot     Slots    @relation(fields: [slotId], references: [id], onDelete: Restrict)
+  slot     Slots?   @relation(fields: [slotId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
