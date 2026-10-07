@@ -1,10 +1,11 @@
 "use client";
-import {useLocale} from "next-intl";
 
+import { useLocale } from "next-intl";
 import React from "react";
-import {countryName} from '@/i18n/country-name';
-import {Link} from "@/i18n/navigation";
-import { motion } from "motion/react";
+import { countryName } from "@/i18n/country-name";
+import { Link } from "@/i18n/navigation";
+import { motion, useReducedMotion } from "motion/react";
+import { Crown } from "lucide-react";
 import { CountryFlag } from "@/components/country-flag";
 import { RankedCountryDTO } from "@/modules/ranking/ranking.types";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
 }) => {
   const locale = useLocale();
   const { rank, country, score } = rankedCountry;
+  const reduceMotion = useReducedMotion();
 
   const isGold = rank === 1;
   const isSilver = rank === 2;
@@ -35,7 +37,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       whileHover={{ x: 2 }}
       transition={{ duration: 0.12, ease: "easeOut" }}
       className={cn(
-        "group grid grid-cols-[28px_minmax(0,1fr)_28px_124px] sm:grid-cols-12 items-center px-2 sm:px-4 py-2.5 rounded-lg border text-xs transition-colors",
+        "group grid grid-cols-12 items-center px-4 py-2.5 rounded-lg border text-xs transition-colors",
         "relative z-0",
         isGold
           ? "bg-[#14120C]/90 border-amber-600/30 hover:border-amber-500/50 hover:bg-[#19150E]"
@@ -47,33 +49,75 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
         className,
       )}
     >
-      {/* Rank column - plain clean number matching photo 2 */}
+      {/* Game-style rank badge: animated podium emblems, clean numerals below. */}
       <div className="col-span-1 flex items-center">
         <Link
           href={`/country/${country.slug}`}
-          className="w-full flex items-center"
+          className="w-full flex items-center justify-start"
+          aria-label={`${countryName(locale, country.code, country.name)}, rank ${rank}`}
         >
-          <span
-            className={cn(
-              "font-mono tabular-nums pl-0.5",
-              isGold && "text-sm font-bold text-amber-500",
-              isSilver && "text-sm font-semibold text-zinc-200",
-              isBronze && "text-sm font-semibold text-amber-600",
-              !isGold &&
-                !isSilver &&
-                !isBronze &&
-                "text-xs font-medium text-zinc-500",
-            )}
-          >
-            {rank}
-          </span>
+          {rank <= 3 ? (
+            <motion.span
+              initial={reduceMotion ? false : { opacity: 0, scale: 0.72, rotate: -8 }}
+              animate={
+                reduceMotion
+                  ? undefined
+                  : {
+                      opacity: 1,
+                      scale: [1, 1.045, 1],
+                      rotate: 0,
+                    }
+              }
+              transition={{
+                opacity: { duration: 0.3, delay: rank * 0.07 },
+                rotate: { duration: 0.35, delay: rank * 0.07 },
+                scale: {
+                  duration: 2.8,
+                  delay: rank * 0.22,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
+              }}
+              whileHover={reduceMotion ? undefined : { scale: 1.12, rotate: 3 }}
+              className={cn(
+                "relative isolate flex size-10 items-center justify-center overflow-hidden rounded-md border font-mono text-lg font-black tabular-nums shadow-lg",
+                "before:absolute before:inset-[-60%] before:-z-10 before:animate-[spin_4s_linear_infinite] before:bg-[conic-gradient(from_90deg,transparent_0deg,rgba(255,255,255,.5)_55deg,transparent_105deg)]",
+                "after:absolute after:inset-px after:-z-10 after:rounded-[5px]",
+                isGold &&
+                  "border-amber-200/80 bg-amber-500 text-white shadow-[0_0_22px_rgba(245,158,11,.48)] after:bg-[radial-gradient(circle_at_35%_25%,#ffdc72,#d35400_70%)]",
+                isSilver &&
+                  "border-sky-100/80 bg-slate-400 text-white shadow-[0_0_20px_rgba(148,163,184,.42)] after:bg-[radial-gradient(circle_at_35%_25%,#dff4ff,#526477_70%)]",
+                isBronze &&
+                  "border-orange-300/70 bg-orange-700 text-white shadow-[0_0_20px_rgba(234,88,12,.42)] after:bg-[radial-gradient(circle_at_35%_25%,#ffb067,#8a2f16_70%)]",
+              )}
+            >
+              {isGold && (
+                <Crown
+                  aria-hidden="true"
+                  className="absolute top-0.5 size-3 text-amber-100 drop-shadow"
+                  strokeWidth={2.5}
+                />
+              )}
+              <span className={cn("relative drop-shadow-md", isGold && "pt-2")}>{rank}</span>
+              <span className="absolute inset-x-1 bottom-1 h-px bg-white/35" aria-hidden="true" />
+            </motion.span>
+          ) : (
+            <motion.span
+              initial={reduceMotion ? false : { opacity: 0, x: -5 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.22, delay: Math.min(rank, 12) * 0.025 }}
+              className="flex size-10 items-center justify-center font-mono text-xl font-medium tabular-nums text-zinc-400 transition-colors group-hover:text-white"
+            >
+              {rank}
+            </motion.span>
+          )}
         </Link>
       </div>
 
       {/* Country Name + Flag + Code (cols 3-8) */}
       <Link
         href={`/country/${country.slug}`}
-        className="col-span-1 sm:col-span-7 flex items-center gap-1.5 sm:gap-2.5 min-w-0 pr-2"
+        className="col-span-7 flex items-center gap-2.5 min-w-0 pr-2"
       >
         <CountryFlag
           code={country.code}
@@ -83,7 +127,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
         <span className="font-medium text-zinc-200 group-hover:text-white transition-colors truncate">
           {countryName(locale, country.code, country.name)}
         </span>
-        <span className="hidden sm:inline font-mono text-[10px] text-zinc-500 uppercase shrink-0">
+        <span className="font-mono text-[10px] text-zinc-500 uppercase shrink-0">
           {country.code}
         </span>
       </Link>
@@ -96,7 +140,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="col-span-1 sm:col-span-3 flex items-center justify-end font-mono text-[11px]">
+      <div className="col-span-3 flex items-center justify-end font-mono text-[11px]">
         <LeaderboardVoteActions
           slug={country.slug}
           countryName={countryName(locale, country.code, country.name)}

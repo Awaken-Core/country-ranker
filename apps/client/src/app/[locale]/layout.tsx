@@ -24,7 +24,6 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('UI');
   return {title: `${t('leaderboard')} | CountryRank`, description: t('rankingDescription')};
 }
-
 export default async function RootLayout({
   children,
   params,
@@ -46,4 +45,3 @@ export default async function RootLayout({
     </html>
   );
 }
-

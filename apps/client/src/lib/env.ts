@@ -20,7 +20,7 @@ export const env = createEnv({
     UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   },
   client: {
-    NEXT_PUBLIC_APP_BASE_URL: z.string().min(1),
+    NEXT_PUBLIC_APP_BASE_URL: z.url(),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_APP_BASE_URL: process.env.NEXT_PUBLIC_APP_BASE_URL,

@@ -28,7 +28,7 @@ export function AdCard({ ad, className, onReserve }: AdCardProps) {
         transition={{ duration: 0.12, ease: "easeOut" }}
         onClick={onReserve}
         className={cn(
-          "group flex min-h-0 w-full flex-1 cursor-pointer flex-col items-center justify-between rounded-lg border border-dashed border-white/10 bg-[#0f0f0f] px-3 py-2.5 text-center transition-colors hover:border-white/30",
+          "group flex min-h-0 w-full flex-1 cursor-pointer flex-col items-center justify-between rounded-xl border border-dashed border-white/10 bg-[#101010] px-4 py-4 text-center transition-colors hover:border-white/30",
           className,
         )}
       >
@@ -58,7 +58,7 @@ export function AdCard({ ad, className, onReserve }: AdCardProps) {
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.12, ease: "easeOut" }}
       className={cn(
-        "group flex min-h-0 flex-1 cursor-pointer flex-col items-center justify-between rounded-lg border border-white/[0.08] px-3 py-2.5 text-center transition-colors hover:border-white/20",
+        "group flex min-h-0 flex-1 cursor-pointer flex-col items-center justify-between rounded-xl border border-white/[0.1] px-4 py-4 text-center transition-colors hover:border-white/25",
         className,
       )}
       style={{
@@ -67,21 +67,21 @@ export function AdCard({ ad, className, onReserve }: AdCardProps) {
       }}
     >
       <div className="flex w-full flex-col items-center">
-        <div className="relative mb-3 size-6 overflow-hidden rounded-full bg-zinc-800 shadow transition-transform group-hover:scale-105 mt-2">
+        <div className="relative mb-3 size-8 overflow-hidden rounded-lg bg-zinc-800 shadow transition-transform group-hover:scale-105 mt-2">
           <Image
             src={getLogoUrl(ad.logo)}
             alt=""
             fill
             unoptimized
-            sizes="24px"
+            sizes="32px"
             className="object-cover"
           />
         </div>
-        <div className="text-[11px] leading-none font-semibold tracking-tight group-hover:text-white">
+        <div className="text-sm leading-none font-semibold tracking-tight group-hover:text-white">
           {ad.name}
         </div>
         {ad.description && (
-          <p className="mt-1 line-clamp-2 font-mono text-[9px] leading-tight text-zinc-400">
+          <p className="mt-2 line-clamp-2 font-mono text-[11px] leading-relaxed text-zinc-400">
             {ad.description}
           </p>
         )}

@@ -28,8 +28,18 @@ export function AdRail({
   className,
 }: AdRailProps) {
   const reduceMotion = useReducedMotion();
-  const hasAvailableSlot = side === "right" && available > 0;
-  const sponsorCardCount = VISIBLE_ADS_PER_RAIL - (hasAvailableSlot ? 1 : 0);
+  const emptyVisiblePositions = Math.max(
+    0,
+    VISIBLE_ADS_PER_RAIL - sponsors.length,
+  );
+  const fallbackCount =
+    available > 0
+      ? Math.max(
+          emptyVisiblePositions,
+          side === "right" && sponsors.length >= VISIBLE_ADS_PER_RAIL ? 1 : 0,
+        )
+      : 0;
+  const sponsorCardCount = VISIBLE_ADS_PER_RAIL - fallbackCount;
 
   const visibleSponsors = useMemo(() => {
     if (sponsors.length === 0) return [];
@@ -45,15 +55,15 @@ export function AdRail({
 
   const cards: Array<AdItem | null> = Array.from(
     { length: VISIBLE_ADS_PER_RAIL },
-    (_, index) => visibleSponsors[index] ?? null,
+    (_, index) =>
+      visibleSponsors[index] ??
+      (available > 0
+        ? {
+            id: "available-slot" as const,
+            available,
+          }
+        : null),
   );
-
-  if (hasAvailableSlot) {
-    cards[VISIBLE_ADS_PER_RAIL - 1] = {
-      id: "available-slot",
-      available,
-    };
-  }
 
   return (
     <aside
@@ -61,7 +71,7 @@ export function AdRail({
       onPointerEnter={() => onPauseChange(true)}
       onPointerLeave={() => onPauseChange(false)}
       className={cn(
-        "flex h-full w-[190px] shrink-0 select-none flex-col gap-2 xl:w-[210px] 2xl:w-[230px]",
+        "flex h-full w-[210px] shrink-0 select-none flex-col gap-3 2xl:w-[270px]",
         className,
       )}
     >
