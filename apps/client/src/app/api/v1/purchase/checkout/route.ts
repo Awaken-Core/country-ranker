@@ -5,7 +5,7 @@ import { client } from "@/lib/db";
 import { dodopayments } from "@/lib/dodopayments";
 import { env } from "@/lib/env";
 import { getPriceForVotes } from "@/lib/vote-price";
-import { routing } from "@/i18n/routing";
+import { localePath, routing } from "@/i18n/routing";
 
 export const runtime = "nodejs";
 
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
   }
 
   const input = parsed.data;
-  const appUrl = `${env.NEXT_PUBLIC_APP_BASE_URL.replace(/\/$/, "")}/${input.locale}`;
+  const appUrl = `${env.NEXT_PUBLIC_APP_BASE_URL.replace(/\/$/, "")}${localePath(input.locale)}`;
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return errorResponse("Sign in before making this purchase.", 401);
 

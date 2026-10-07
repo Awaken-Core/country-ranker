@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn, signOut, signUp, useSession } from "@/lib/auth-client";
 import { GoogleIcon } from "@/components/auth/google-svg";
+import { localePath } from "@/i18n/routing";
 
 const subscribeToMount = () => () => {};
 
@@ -76,12 +77,12 @@ export function HeaderAuth() {
 
     try {
       const result = isLogin
-        ? await signIn.email({ email, password, callbackURL: `/${locale}/` })
+        ? await signIn.email({ email, password, callbackURL: localePath(locale) })
         : await signUp.email({
             name: String(formData.get("name")),
             email,
             password,
-            callbackURL: `/${locale}/`,
+            callbackURL: localePath(locale),
           });
 
       if (result.error) {
@@ -98,7 +99,7 @@ export function HeaderAuth() {
     setIsSubmitting(true);
     setError(null);
     try {
-      const result = await signIn.social({ provider: "google", callbackURL: `/${locale}/` });
+      const result = await signIn.social({ provider: "google", callbackURL: localePath(locale) });
       if (result?.error) {
         setError(result.error.message ?? t('connectionError'));
         setIsSubmitting(false);

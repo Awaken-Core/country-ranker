@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useSession } from "@/lib/auth-client";
+import { localePath } from "@/i18n/routing";
 
 interface BecomeSponsorModalProps {
   open: boolean;
@@ -52,7 +53,7 @@ export default function BecomeSponsorModal({
       return;
     }
     if (session.user.role === "CUSTOMER") {
-      window.location.assign(`/${locale}/sponsor`);
+      window.location.assign(localePath(locale, "/sponsor"));
       return;
     }
     if (session.user.role !== "USER") {

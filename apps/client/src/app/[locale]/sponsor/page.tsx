@@ -6,6 +6,7 @@ import { GlobalPageLayout } from "@/components/layout/global-page-layout";
 import { SponsorManagementForm } from "@/components/sponsor/sponsor-management-form";
 import { auth } from "@/lib/auth";
 import { client } from "@/lib/db";
+import { localePath } from "@/i18n/routing";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("UI");
@@ -20,7 +21,7 @@ export const dynamic = "force-dynamic";
 export default async function SponsorPage() {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("UI")]);
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect(`/${locale}/`);
+  if (!session) redirect(localePath(locale));
 
   const customer = await client.user.findUnique({
     where: { id: session.user.id },
@@ -52,7 +53,7 @@ export default async function SponsorPage() {
     },
   });
 
-  if (customer?.role !== "CUSTOMER") redirect(`/${locale}/`);
+  if (customer?.role !== "CUSTOMER") redirect(localePath(locale));
 
   const sponsor = customer.sponsors;
   const slot = sponsor?.slots[0] ?? null;
