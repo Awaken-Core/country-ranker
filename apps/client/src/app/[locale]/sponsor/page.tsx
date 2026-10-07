@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { GlobalPageLayout } from "@/components/layout/global-page-layout";
@@ -6,16 +7,20 @@ import { SponsorManagementForm } from "@/components/sponsor/sponsor-management-f
 import { auth } from "@/lib/auth";
 import { client } from "@/lib/db";
 
-export const metadata: Metadata = {
-  title: "Sponsor Dashboard | CountryRank",
-  description: "Manage your CountryRank sponsor card and advertising slot.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("UI");
+  return {
+    title: `${t("sponsorWorkspace")} | CountryRank`,
+    description: t("sponsorDescription"),
+  };
+}
 
 export const dynamic = "force-dynamic";
 
 export default async function SponsorPage() {
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("UI")]);
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/");
+  if (!session) redirect(`/${locale}/`);
 
   const customer = await client.user.findUnique({
     where: { id: session.user.id },
@@ -47,7 +52,7 @@ export default async function SponsorPage() {
     },
   });
 
-  if (customer?.role !== "CUSTOMER") redirect("/");
+  if (customer?.role !== "CUSTOMER") redirect(`/${locale}/`);
 
   const sponsor = customer.sponsors;
   const slot = sponsor?.slots[0] ?? null;
@@ -63,13 +68,13 @@ export default async function SponsorPage() {
       <section className="flex min-h-0 flex-1 flex-col rounded-2xl border border-white/[0.08] bg-[#0d0d0e] p-6">
         <div className="shrink-0 border-b border-white/[0.08] pb-5">
           <p className="font-mono text-[10px] tracking-widest text-amber-400 uppercase">
-            Sponsor workspace
+            {t("sponsorWorkspace")}
           </p>
           <h1 className="mt-2 text-2xl font-semibold text-white">
-            Manage your sponsor card
+            {t("sponsorCards")}
           </h1>
           <p className="mt-1 text-sm text-zinc-400">
-            Update the card shown in your active advertising slot.
+            {t("sponsorDescription")}
           </p>
         </div>
 

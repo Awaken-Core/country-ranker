@@ -1,4 +1,5 @@
 "use client";
+import {useTranslations} from "next-intl";
 
 import Image from "next/image";
 import { Megaphone } from "lucide-react";
@@ -18,6 +19,7 @@ function getLogoUrl(logo: string) {
 }
 
 export function AdCard({ ad, className, onReserve }: AdCardProps) {
+  const t=useTranslations('UI');
   if (isAvailableAd(ad)) {
     return (
       <motion.button
@@ -35,14 +37,14 @@ export function AdCard({ ad, className, onReserve }: AdCardProps) {
             <Megaphone className="size-3" aria-hidden="true" />
           </div>
           <div className="text-[11px] leading-none font-semibold tracking-tight text-white/95">
-            Advertise
+            {t('advertise')}
           </div>
           <p className="mt-1 line-clamp-2 font-mono text-[9px] leading-tight text-zinc-400">
-            {ad.available}/20 spots left. Reach 250k+ monthly global viewers.
+            {t('adAvailability', {count: ad.available})}
           </p>
         </div>
         <span className="mt-1 font-mono text-[8px] tracking-widest text-amber-400/90 uppercase group-hover:text-amber-300">
-          Reserve spot →
+          {t('reserve')} →
         </span>
       </motion.button>
     );
@@ -85,7 +87,7 @@ export function AdCard({ ad, className, onReserve }: AdCardProps) {
         )}
       </div>
       <span className="mt-1 font-mono text-[8px] text-zinc-500 transition-colors group-hover:text-zinc-300">
-        Promoted ↗
+        {t('promoted')} ↗
       </span>
     </motion.a>
   );

@@ -1,4 +1,5 @@
 "use client";
+import {useTranslations} from "next-intl";
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -23,6 +24,7 @@ export function LeaderboardVoteActions({
   onVoteSuccess,
   onOpenPurchase,
 }: LeaderboardVoteActionsProps) {
+  const t=useTranslations('UI');
   const router = useRouter();
   const { data: session, isPending: isSessionPending } = useSession();
   const [pending, setPending] = useState<VoteType | null>(null);
@@ -34,7 +36,7 @@ export function LeaderboardVoteActions({
     if (pending) return;
 
     if (isSessionPending) {
-      toast.info("Checking sign-in status…");
+      toast.info(t('loading'));
       return;
     }
 
@@ -69,7 +71,7 @@ export function LeaderboardVoteActions({
 
         toast.error(
           body?.message ??
-            "You've used today's three free votes. They reset at 00:00 UTC.",
+            t('dailyReset', {time: '00:00 UTC'}),
         );
 
         if (response.status !== 429 && response.status !== 500) {
@@ -86,7 +88,7 @@ export function LeaderboardVoteActions({
       router.refresh();
     } catch {
       // Retain the key so a retry cannot create a duplicate vote.
-      toast.error("Could not reach voting service. Try again.");
+      toast.error(t('connectionError'));
     } finally {
       setPending(null);
     }
@@ -106,8 +108,8 @@ export function LeaderboardVoteActions({
     >
       <motion.button
         type="button"
-        title="Upvote"
-        aria-label={`Upvote ${countryName}`}
+        title={t('upvotes')}
+        aria-label={`${t('upvotes')} ${countryName}`}
         disabled={pending !== null}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.92 }}
@@ -137,8 +139,8 @@ export function LeaderboardVoteActions({
 
       <motion.button
         type="button"
-        title="Downvote"
-        aria-label={`Downvote ${countryName}`}
+        title={t('downvotes')}
+        aria-label={`${t('downvotes')} ${countryName}`}
         disabled={pending !== null}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.92 }}
@@ -168,8 +170,8 @@ export function LeaderboardVoteActions({
 
       <motion.button
         type="button"
-        title="Purchase votes for $5"
-        aria-label="Purchase votes for $5"
+        title={t('purchaseVotes')}
+        aria-label={t('purchaseVotes')}
         disabled={pending !== null}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.92 }}

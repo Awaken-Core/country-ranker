@@ -1,12 +1,15 @@
 import React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { BellDot, Globe } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { HeaderAuth } from "@/components/header-auth";
+import { LanguageSwitcher } from "./language-switcher";
 import { Button } from "../ui/button";
 
 export const SiteHeader: React.FC = () => {
+  const t = useTranslations("UI");
   return (
-    <header className="h-12 shrink-0 mb-3 z-40 font-sans shadow-[0_16px_60px_rgba(0,0,0,0.35)]">
+    <header dir="ltr" className="h-12 shrink-0 mb-3 z-40 font-sans shadow-[0_16px_60px_rgba(0,0,0,0.35)]">
       <div className="h-full px-3 sm:px-4 flex items-center justify-between">
         {/* Left: Wordmark with Globe icon */}
         <div className="flex items-center gap-1 group">
@@ -24,19 +27,20 @@ export const SiteHeader: React.FC = () => {
               href="/countries"
               className="text-xs text-zinc-400 hover:text-white/80 transition-colors font-normal rounded-md hover:underline"
             >
-              All Countries
+              {t("allCountries")}
             </Link>
              <Link
               href="/sponsor"
               className="text-xs text-zinc-400 hover:text-white/80 transition-colors font-normal rounded-md hover:underline"
             >
-              Sponsor
+              {t("advertise")}
             </Link>
           </div>
         </div>
 
         {/* Right: Directory Link & Auth Dialog */}
         <div className="flex items-center gap-2 sm:gap-3">
+          <LanguageSwitcher />
           <Button variant="ghost" className="border border-zinc-600 rounded-full bg-zinc-900">
             <BellDot />
           </Button>

@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "next/link";
+import {Link} from "@/i18n/navigation";
 import { CountryFlag } from "@/components/country-flag";
 import { CountryDTO } from "@/modules/countries/country.types";
 import { cn } from "@/lib/utils";

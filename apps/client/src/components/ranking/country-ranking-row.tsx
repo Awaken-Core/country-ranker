@@ -1,7 +1,9 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import React from "react";
-import Link from "next/link";
+import { countryName } from "@/i18n/country-name";
+import { Link } from "@/i18n/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { Crown } from "lucide-react";
 import { CountryFlag } from "@/components/country-flag";
@@ -22,6 +24,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
   onVoteSuccess,
   onOpenPurchase,
 }) => {
+  const locale = useLocale();
   const { rank, country, score } = rankedCountry;
   const reduceMotion = useReducedMotion();
 
@@ -51,7 +54,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
         <Link
           href={`/country/${country.slug}`}
           className="w-full flex items-center justify-start"
-          aria-label={`${country.name}, rank ${rank}`}
+          aria-label={`${countryName(locale, country.code, country.name)}, rank ${rank}`}
         >
           {rank <= 3 ? (
             <motion.span
@@ -122,7 +125,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
           className="rounded-[2px] shadow-sm shrink-0"
         />
         <span className="font-medium text-zinc-200 group-hover:text-white transition-colors truncate">
-          {country.name}
+          {countryName(locale, country.code, country.name)}
         </span>
         <span className="font-mono text-[10px] text-zinc-500 uppercase shrink-0">
           {country.code}
@@ -132,7 +135,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       {/* Net score */}
       <div className="col-span-1 flex items-center justify-end">
         <span className="font-mono text-xs font-semibold text-zinc-300 group-hover:text-white tabular-nums transition-colors">
-          {score.toLocaleString()}
+          {score.toLocaleString(locale)}
         </span>
       </div>
 
@@ -140,7 +143,7 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       <div className="col-span-3 flex items-center justify-end font-mono text-[11px]">
         <LeaderboardVoteActions
           slug={country.slug}
-          countryName={country.name}
+          countryName={countryName(locale, country.code, country.name)}
           onVoteSuccess={onVoteSuccess}
           onOpenPurchase={() => onOpenPurchase(country.id)}
         />

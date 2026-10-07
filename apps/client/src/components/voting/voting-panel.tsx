@@ -1,4 +1,5 @@
 "use client";
+import {useTranslations} from "next-intl";
 
 import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -30,6 +31,7 @@ export function VotingPanel({
   initialUpvotes,
   initialDownvotes,
 }: VotingPanelProps) {
+  const t=useTranslations('UI');
   const confettiRef = useRef<ConfettiRef>(null);
   const { data: session, isPending: isSessionPending } = useSession();
 
@@ -78,7 +80,7 @@ export function VotingPanel({
           : ["#ff4d4d", "#ff8080", "#ffffff"],
     });
     toast.success(
-      `🎉 You ${voteType === "UPVOTE" ? "upvoted" : "downvoted"} ${countryName}`,
+      t(voteType === 'UPVOTE' ? 'upvoteSuccess' : 'downvoteSuccess', {country: countryName}),
     );
   }
 
@@ -87,7 +89,7 @@ export function VotingPanel({
     return (
       <div className="p-4 rounded-xl border border-dashed border-white/[0.08] bg-[#0A0A0A] text-center font-mono">
         <p className="text-xs text-zinc-400">
-          Sign in to cast your 3 free sovereign votes per day.
+          {t('signInVote')}
         </p>
       </div>
     );
@@ -110,7 +112,7 @@ export function VotingPanel({
   if (balanceStatus === "error" && errorCode === "UNAUTHORIZED") {
     return (
       <div className="p-4 rounded-xl border border-dashed border-white/[0.08] bg-[#0A0A0A] text-center font-mono">
-        <p className="text-xs text-zinc-400">Sign in to vote.</p>
+        <p className="text-xs text-zinc-400">{t('signInVote')}</p>
       </div>
     );
   }
@@ -124,12 +126,12 @@ export function VotingPanel({
       />
       {/* Header row: label + allowance */}
       <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-zinc-400">
-        <span>Cast your vote</span>
+        <span>{t('castVote')}</span>
 
         {isLoggedIn && (
           <span>
             {balanceStatus === "loading" && balance === null ? (
-              <span className="animate-pulse text-zinc-600">checking…</span>
+              <span className="animate-pulse text-zinc-600">{t('loading')}</span>
             ) : balance ? (
               <>
                 <span
@@ -140,7 +142,7 @@ export function VotingPanel({
                 >
                   {upvoteRemaining}
                 </span>
-                <span className="text-zinc-500"> upvotes left</span>
+                <span className="text-zinc-500"> {t('upvotes')}</span>
                 <span className="text-zinc-700 mx-1.5">·</span>
                 <span
                   className={cn(
@@ -150,14 +152,14 @@ export function VotingPanel({
                 >
                   {downvoteRemaining}
                 </span>
-                <span className="text-zinc-500"> downvotes left</span>
+                <span className="text-zinc-500"> {t('downvotes')}</span>
                 {purchasedRemaining > 0 && (
                   <>
                     <span className="text-zinc-700 mx-1.5">·</span>
                     <span className="text-amber-400 font-semibold tabular-nums">
                       {purchasedRemaining}
                     </span>
-                    <span className="text-zinc-500"> paid</span>
+                    <span className="text-zinc-500"> {t('paid')}</span>
                   </>
                 )}
               </>
@@ -216,11 +218,7 @@ export function VotingPanel({
         downvoteRemaining === 0 &&
         purchasedRemaining === 0 && (
           <p className="font-mono text-[10px] text-zinc-500">
-            Daily limit reached. Resets at{" "}
-            <span className="text-zinc-400">
-              {formatResetTime(balance.resetsAt)}
-            </span>
-            .
+            {t('dailyReset', {time: formatResetTime(balance.resetsAt)})}
           </p>
         )}
     </div>

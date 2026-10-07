@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ export function SponsorManagementForm({
   billingCycleActive,
   billingEndsAt,
 }: Props) {
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const router = useRouter();
   const draft = useSponsorDraftStore();
@@ -112,7 +114,7 @@ export function SponsorManagementForm({
       const response = await fetch("/api/v1/purchase/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ purchaseType: "SPONSOR_RENEW" }),
+        body: JSON.stringify({ purchaseType: "SPONSOR_RENEW", locale }),
       });
       return responseJson<{ checkoutUrl: string }>(response);
     },

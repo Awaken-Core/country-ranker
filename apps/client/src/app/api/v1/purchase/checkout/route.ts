@@ -5,6 +5,7 @@ import { client } from "@/lib/db";
 import { dodopayments } from "@/lib/dodopayments";
 import { env } from "@/lib/env";
 import { getPriceForVotes } from "@/lib/vote-price";
+import { routing } from "@/i18n/routing";
 
 export const runtime = "nodejs";
 
@@ -17,12 +18,15 @@ const checkoutSchema = z.discriminatedUnion("purchaseType", [
     countryId: z.uuid(),
     voteCount: z.number().int().min(1).max(MAX_PURCHASE_VOTES),
     voteType: z.enum(["UPVOTE", "DOWNVOTE"]),
+    locale: z.enum(routing.locales).default("en"),
   }),
   z.object({
     purchaseType: z.literal("SPONSOR_NEW"),
+    locale: z.enum(routing.locales).default("en"),
   }),
   z.object({
     purchaseType: z.literal("SPONSOR_RENEW"),
+    locale: z.enum(routing.locales).default("en"),
   }),
 ]);
 
@@ -49,7 +53,7 @@ export async function POST(request: Request) {
   }
 
   const input = parsed.data;
-  const appUrl = env.NEXT_PUBLIC_APP_BASE_URL.replace(/\/$/, "");
+  const appUrl = `${env.NEXT_PUBLIC_APP_BASE_URL.replace(/\/$/, "")}/${input.locale}`;
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return errorResponse("Sign in before making this purchase.", 401);
 

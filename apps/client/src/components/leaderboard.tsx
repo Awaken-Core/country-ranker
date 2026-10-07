@@ -5,7 +5,7 @@ import { RankedCountryDTO } from "@/modules/ranking/ranking.types";
 import { TopThree } from "@/components/top-three";
 import { CountryRankCard } from "@/components/country-rank-card";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
+import {Link} from "@/i18n/navigation";
 
 interface LeaderboardProps {
   initialRankings: RankedCountryDTO[];
