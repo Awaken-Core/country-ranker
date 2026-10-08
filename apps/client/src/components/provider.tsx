@@ -6,6 +6,7 @@ import QueryProvider from "./query-client";
 import { ThemeProvider } from "./theme-provider";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
+import { Analytics } from "@vercel/analytics/next"
 import { env } from "@/lib/env";
 
 if (typeof window !== "undefined") {
@@ -24,20 +25,24 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     return (
-        <PostHogProvider client={posthog}>
-            <QueryProvider>
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="dark"
-                    forcedTheme="dark"
-                    enableSystem={false}
-                    disableTransitionOnChange
-                >
-                    {children}
-                    {mounted && <Toaster position="top-center" />}
-                </ThemeProvider>
-            </QueryProvider>
-        </PostHogProvider>
+        <>
+            <PostHogProvider client={posthog}>
+                <QueryProvider>
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="dark"
+                        forcedTheme="dark"
+                        enableSystem={false}
+                        disableTransitionOnChange
+                    >
+                        {children}
+                        {mounted && <Toaster position="top-center" />}
+                    </ThemeProvider>
+                </QueryProvider>
+            </PostHogProvider>
+
+            <Analytics />
+        </>
     );
 };
 
