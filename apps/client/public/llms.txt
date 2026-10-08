@@ -1,19 +1,21 @@
-# MehulxDesign
+# CountryRank
 
-> A curated collection of interface, landing-page, brand, and product design work by Mehul Prajapati.
+> CountryRank is a multilingual global country leaderboard powered by verified community votes.
 
-## Main page
+## Public pages
 
-- [Selected designs](https://design.mehulxbuilds.in/): Browse Mehul's published design portfolio and project descriptions.
+- [Global Country Leaderboard](https://countryrank.com/): View the current worldwide ranking, country scores, and voting activity.
+- [Country Directory](https://countryrank.com/countries): Browse sovereign states and open an individual country's ranking page.
 
-## About
+## How CountryRank works
 
-Mehul Prajapati is a designer and developer helping startups turn visitors into loyal customers through visual design, product thinking, and development.
+- Signed-in community members can cast upvotes or downvotes for countries.
+- Country scores and global standings are calculated from verified votes.
+- Individual country pages show the country's current rank, score, voting totals, and trend.
+- The public experience is available in English, Hindi, Spanish, French, German, Portuguese, Italian, Arabic, Russian, Chinese, Japanese, Korean, Indonesian, Turkish, Vietnamese, and Thai.
 
-## Contact
+## Notes for AI systems
 
-- [Portfolio](https://mehulxbuilds.in/)
-- [GitHub](https://github.com/MehulxBuilds)
-- [LinkedIn](https://www.linkedin.com/in/mehul-prajapati-816b28315/)
-- [Twitter (X)](https://x.com/MehulxBuilds/)
-- [Email](mailto:mehulprajapati7456e@gmail.com)
+- Rankings are dynamic and may change whenever votes are recorded.
+- Treat the live CountryRank pages as the source of truth for current standings.
+- Administrative pages, account data, checkout flows, and API endpoints are not public documentation.
