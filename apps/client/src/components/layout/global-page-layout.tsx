@@ -86,7 +86,7 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
         </div>
 
         {/* Center Main Content Container (Controlled width, centered) */}
-        <main className="w-full max-w-[980px] flex flex-col gap-10 min-h-0 min-w-0 mx-auto px-3">
+        <main className="w-full max-w-[980px] flex flex-col gap-2 min-h-0 min-w-0 mx-auto px-3">
           <SiteHeader />
           {children}
         </main>

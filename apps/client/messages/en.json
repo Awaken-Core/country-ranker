@@ -79,6 +79,14 @@
     "paymentReceived": "Payment received",
     "sponsorLogin": "Sign in with your checkout email to manage your sponsor card.",
     "unassignedSlots": "Unassigned paid slots",
-    "draft": "Draft"
+    "draft": "Draft",
+    "yourCountry": "Your Country",
+    "yourCountryRank": "Rank #{rank}",
+    "changeCountry": "Change country",
+    "selectYourCountry": "Select your country",
+    "scrollToCountry": "Scroll to {country}",
+    "upvoteCountry": "Upvote {country}",
+    "downvoteCountry": "Downvote {country}",
+    "purchaseVotesFor": "Purchase votes for {country}"
   }
 }
