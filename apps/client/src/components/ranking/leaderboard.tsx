@@ -249,44 +249,58 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   // Smooth scroll to user country row
   const handleScrollToCountry = useCallback(() => {
     const scrollContainer = scrollContainerRef.current;
-    const targetRow = userCountryRowRef.current;
+    if (!scrollContainer || !userCountryData) return;
 
-    if (!targetRow || !scrollContainer) {
-      // If user's country is not currently in the filtered list (e.g., in top20 while country is #230, or search query filter)
-      // reset filters to show "all" and clear search so row is rendered
-      if (filter !== "all" || search.trim() !== "") {
-        setFilter("all");
-        setSearch("");
-        // Delay slightly for re-render before scrolling
-        setTimeout(() => {
-          if (userCountryRowRef.current && scrollContainerRef.current) {
-            userCountryRowRef.current.scrollIntoView({
-              behavior: "smooth",
-              block: "center",
-            });
-            setHighlightUserCountry(true);
-            if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
-            highlightTimeoutRef.current = setTimeout(() => {
-              setHighlightUserCountry(false);
-            }, 2500);
-          }
-        }, 60);
-      }
+    const targetCode = userCountryData.country.code.toUpperCase();
+
+    // Helper to perform the scroll and highlight on an element
+    const performScroll = (el: HTMLElement) => {
+      // Calculate position inside container for guaranteed reliable scrolling
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const relativeTop = elRect.top - containerRect.top + scrollContainer.scrollTop;
+      const targetScrollTop = relativeTop - (scrollContainer.clientHeight / 2) + (el.clientHeight / 2);
+
+      scrollContainer.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: "smooth",
+      });
+
+      setHighlightUserCountry(true);
+      if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+      highlightTimeoutRef.current = setTimeout(() => {
+        setHighlightUserCountry(false);
+      }, 2500);
+    };
+
+    // 1. Try finding row immediately
+    let targetRow =
+      userCountryRowRef.current ??
+      (scrollContainer.querySelector(`[data-country-code="${targetCode}"]`) as HTMLElement | null);
+
+    // 2. If row exists in current view, scroll immediately
+    if (targetRow) {
+      performScroll(targetRow);
       return;
     }
 
-    targetRow.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-
-    // Apply temporary highlight
-    setHighlightUserCountry(true);
-    if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
-    highlightTimeoutRef.current = setTimeout(() => {
-      setHighlightUserCountry(false);
-    }, 2500);
-  }, [filter, search]);
+    // 3. If not found in current view (e.g., active filter is "top20" or user has search input), reset filter
+    if (filter !== "all" || search.trim() !== "") {
+      setFilter("all");
+      setSearch("");
+      // Wait for React to render the full list
+      setTimeout(() => {
+        const freshContainer = scrollContainerRef.current;
+        if (!freshContainer) return;
+        const freshRow =
+          userCountryRowRef.current ??
+          (freshContainer.querySelector(`[data-country-code="${targetCode}"]`) as HTMLElement | null);
+        if (freshRow) {
+          performScroll(freshRow);
+        }
+      }, 100);
+    }
+  }, [userCountryData, filter, search]);
 
   function openPurchaseModal(countryId: string) {
     setPurchaseCountryId(countryId);
