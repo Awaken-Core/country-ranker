@@ -14,38 +14,55 @@ import { LeaderboardVoteActions } from "@/components/voting/leaderboard-vote-act
 interface CountryRankingRowProps {
   rankedCountry: RankedCountryDTO;
   className?: string;
+  isUserCountry?: boolean;
+  isHighlighted?: boolean;
   onVoteSuccess: (countryName: string, voteType: "UPVOTE" | "DOWNVOTE") => void;
   onOpenPurchase: (countryId: string) => void;
 }
 
-export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
-  rankedCountry,
-  className,
-  onVoteSuccess,
-  onOpenPurchase,
-}) => {
-  const locale = useLocale();
-  const { rank, country, score } = rankedCountry;
-  const reduceMotion = useReducedMotion();
+export const CountryRankingRow = React.forwardRef<
+  HTMLDivElement,
+  CountryRankingRowProps
+>(
+  (
+    {
+      rankedCountry,
+      className,
+      isUserCountry = false,
+      isHighlighted = false,
+      onVoteSuccess,
+      onOpenPurchase,
+    },
+    ref,
+  ) => {
+    const locale = useLocale();
+    const { rank, country, score } = rankedCountry;
+    const reduceMotion = useReducedMotion();
 
-  const isGold = rank === 1;
-  const isSilver = rank === 2;
-  const isBronze = rank === 3;
+    const isGold = rank === 1;
+    const isSilver = rank === 2;
+    const isBronze = rank === 3;
 
-  return (
-    <motion.div
-      whileHover={{ x: 2 }}
-      transition={{ duration: 0.12, ease: "easeOut" }}
+    return (
+      <motion.div
+        ref={ref}
+        data-country-code={country.code}
+        whileHover={{ x: 2 }}
+        transition={{ duration: 0.12, ease: "easeOut" }}
       className={cn(
-        "group grid grid-cols-12 items-center px-4 py-2.5 rounded-lg border text-xs transition-colors",
+        "group grid grid-cols-12 items-center px-4 py-2.5 rounded-lg border text-xs transition-all duration-300",
         "relative z-0",
-        isGold
-          ? "bg-[#14120C]/90 border-amber-600/30 hover:border-amber-500/50 hover:bg-[#19150E]"
-          : isSilver
-            ? "bg-[#101112]/90 border-white/[0.06] hover:border-zinc-300/30 hover:bg-[#151618]"
-            : isBronze
-              ? "bg-[#12100E]/90 border-amber-700/20 hover:border-amber-700/40 hover:bg-[#181310]"
-              : "bg-[#0E0E0E]/80 border-white/[0.04] hover:bg-[#141414] hover:border-white/10",
+        isHighlighted
+          ? "border-emerald-500/60 bg-emerald-950/25 ring-1 ring-emerald-500/30"
+          : isUserCountry
+            ? "border-emerald-500/30 bg-emerald-950/15"
+            : isGold
+              ? "bg-[#14120C]/90 border-amber-600/30 hover:border-amber-500/50 hover:bg-[#19150E]"
+              : isSilver
+                ? "bg-[#101112]/90 border-white/[0.06] hover:border-zinc-300/30 hover:bg-[#151618]"
+                : isBronze
+                  ? "bg-[#12100E]/90 border-amber-700/20 hover:border-amber-700/40 hover:bg-[#181310]"
+                  : "bg-[#0E0E0E]/80 border-white/[0.04] hover:bg-[#141414] hover:border-white/10",
         className,
       )}
     >
@@ -127,6 +144,11 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
         <span className="font-medium text-zinc-200 group-hover:text-white transition-colors truncate">
           {countryName(locale, country.code, country.name)}
         </span>
+        {isUserCountry && (
+          <span className="hidden sm:inline-flex items-center text-[9px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0">
+            YOUR COUNTRY
+          </span>
+        )}
         <span className="font-mono text-[10px] text-zinc-500 uppercase shrink-0">
           {country.code}
         </span>
@@ -150,4 +172,6 @@ export const CountryRankingRow: React.FC<CountryRankingRowProps> = ({
       </div>
     </motion.div>
   );
-};
+});
+
+CountryRankingRow.displayName = "CountryRankingRow";
