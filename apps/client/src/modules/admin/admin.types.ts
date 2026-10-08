@@ -1,4 +1,4 @@
-export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
+export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN" | "CUSTOMER";
 
 export type AdminPermission =
   | "MANAGE_ADMINS"
