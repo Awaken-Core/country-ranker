@@ -1,5 +1,5 @@
 "use client";
-import {useTranslations} from "next-intl";
+import { useTranslations } from "next-intl";
 
 import Image from "next/image";
 import { Megaphone } from "lucide-react";
@@ -7,6 +7,7 @@ import { motion } from "motion/react";
 import { uploadthingsURI } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { AdItem, isAvailableAd } from "./ad-data";
+import { env } from "@/lib/env";
 
 interface AdCardProps {
   ad: AdItem;
@@ -19,7 +20,10 @@ function getLogoUrl(logo: string) {
 }
 
 export function AdCard({ ad, className, onReserve }: AdCardProps) {
-  const t=useTranslations('UI');
+  const t = useTranslations('UI');
+  const domainUrl = new URL(env?.NEXT_PUBLIC_APP_BASE_URL);
+  const domain = domainUrl.hostname.split(".")[0];
+
   if (isAvailableAd(ad)) {
     return (
       <motion.button
@@ -40,7 +44,7 @@ export function AdCard({ ad, className, onReserve }: AdCardProps) {
             {t('advertise')}
           </div>
           <p className="mt-1 line-clamp-2 font-mono text-[9px] leading-tight text-zinc-400">
-            {t('adAvailability', {count: ad.available})}
+            {t('adAvailability', { count: ad.available })}
           </p>
         </div>
         <span className="mt-1 font-mono text-[8px] tracking-widest text-amber-400/90 uppercase group-hover:text-amber-300">
@@ -52,17 +56,18 @@ export function AdCard({ ad, className, onReserve }: AdCardProps) {
 
   return (
     <motion.a
-      href={ad.website}
+      href={`${ad.website}/?utm_source=${domain}&utm_medium=referral&utm_campaign=sponsor_card`}
       target="_blank"
       rel="noopener noreferrer sponsored"
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.12, ease: "easeOut" }}
       className={cn(
-        "group flex min-h-0 flex-1 cursor-pointer flex-col items-center justify-between rounded-xl border border-white/[0.1] px-4 py-4 text-center transition-colors hover:border-white/25",
+        "group flex min-h-0 flex-1 cursor-pointer flex-col items-center justify-between rounded-xl border-2 px-4 py-4 text-center transition-colors hover:border-white/25",
         className,
       )}
       style={{
         backgroundColor: ad.bgColor ?? "#101010",
+        borderRadius: ad.bgColor ?? "#101010",
         color: ad.textColor ?? "#f8fafc",
       }}
     >
@@ -86,9 +91,6 @@ export function AdCard({ ad, className, onReserve }: AdCardProps) {
           </p>
         )}
       </div>
-      <span className="mt-1 font-mono text-[8px] text-zinc-500 transition-colors group-hover:text-zinc-300">
-        {t('promoted')} ↗
-      </span>
     </motion.a>
   );
 }

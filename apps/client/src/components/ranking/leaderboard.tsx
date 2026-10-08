@@ -88,7 +88,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         />
       )}
       {/* 1. Compact Editorial Header */}
-      <div className="shrink-0 mb-3">
+      <div className="shrink-0 mb-3 px-2">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
@@ -99,7 +99,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               {t('realtime')}
             </span>
           </div>
+        </div>
 
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-white">
+            {t('leaderboard')}
+          </h1>
           <Link
             href="/countries"
             className="group inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors"
@@ -107,15 +112,6 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             <span>{t('directoryLink')}</span>
             <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
           </Link>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            {t('leaderboard')}
-          </h1>
-          <p className="text-xs text-zinc-400">
-            {t('rankingDescription')}
-          </p>
         </div>
       </div>
 

@@ -10,15 +10,15 @@ export const SiteHeader: React.FC = () => {
   const t = useTranslations("UI");
   return (
     <header dir="ltr" className="h-12 shrink-0 mb-3 z-40 font-sans shadow-[0_16px_60px_rgba(0,0,0,0.35)]">
-      <div className="h-full px-3 sm:px-4 flex items-center justify-between">
+      <div className="h-full flex items-center justify-between">
         {/* Left: Wordmark with Globe icon */}
         <div className="flex items-center gap-1 group">
           <Link href="/" className="flex items-center gap-1 group">
             <div className="w-6 h-6 rounded-md flex items-center justify-center transition-all">
               <Globe className="size-3.5" />
             </div>
-            <span className="text-[16px] font-semibold tracking-tight text-white group-hover:text-zinc-200 transition-colors">
-              CountryRank
+            <span className="text-[16px] font-medium tracking-[-0.1px] text-white group-hover:text-zinc-200 transition-colors">
+              RankMyCountry
             </span>
           </Link>
 
@@ -41,7 +41,7 @@ export const SiteHeader: React.FC = () => {
         {/* Right: Directory Link & Auth Dialog */}
         <div className="flex items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
-          <Button variant="ghost" className="border border-zinc-600 rounded-full bg-zinc-900">
+          <Button variant="ghost" className="border border-white/20 rounded-full bg-zinc-900">
             <BellDot />
           </Button>
           <HeaderAuth />

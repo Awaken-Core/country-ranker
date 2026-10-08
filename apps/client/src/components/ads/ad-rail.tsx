@@ -71,7 +71,7 @@ export function AdRail({
       onPointerEnter={() => onPauseChange(true)}
       onPointerLeave={() => onPauseChange(false)}
       className={cn(
-        "flex h-full w-[210px] shrink-0 select-none flex-col gap-3 2xl:w-[270px]",
+        "flex h-full w-[180px] shrink-0 select-none flex-col gap-3 2xl:w-[240px]",
         className,
       )}
     >
