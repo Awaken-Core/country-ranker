@@ -14,16 +14,22 @@ export const env = createEnv({
     DODO_PAYMENTS_VOTE_PID: z.string().default("dummy_vote_pid"),
     DODO_PAYMENTS_WEBHOOK_KEY: z.string().default("dummy_webhook_key"),
     UPLOADTHING_TOKEN: z.string().optional(),
+    POSTHOG_PROJECT_ID: z.string().optional(),
+    POSTHOG_API_KEY: z.string().optional(),
     // Set to "true" to require email verification before a user can vote.
     VOTING_REQUIRE_VERIFIED_EMAIL: z.string().optional(),
     UPSTASH_REDIS_REST_URL: z.string().optional(),
     UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   },
   client: {
+    NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: z.string().optional(),
+    NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
     NEXT_PUBLIC_APP_BASE_URL: z.url(),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_APP_BASE_URL: process.env.NEXT_PUBLIC_APP_BASE_URL,
+    NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 });

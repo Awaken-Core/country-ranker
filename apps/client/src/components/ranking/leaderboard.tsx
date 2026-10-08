@@ -1,17 +1,18 @@
 "use client";
-import {useTranslations, useLocale} from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
-import React, { useCallback, useMemo, useRef, useState } from "react";
-import {countryName} from '@/i18n/country-name';
-import {Link} from "@/i18n/navigation";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { countryName } from '@/i18n/country-name';
+import { Link } from "@/i18n/navigation";
 import { motion } from "motion/react";
-import { Search, X, ArrowRight } from "lucide-react";
+import { Search, X, ArrowRight, Eye } from "lucide-react";
 import { RankedCountryDTO } from "@/modules/ranking/ranking.types";
 import { CountryRankingRow } from "./country-ranking-row";
 import { cn } from "@/lib/utils";
 import { Confetti, type ConfettiRef } from "@/components/ui/confetti";
 import { toast } from "sonner";
 import VotePurchaseModal from "@/components/purchase/vote-purchase-modal";
+import { useAnalytics } from "@/stores/analytics-store";
 
 interface LeaderboardProps {
   initialRankings: RankedCountryDTO[];
@@ -33,6 +34,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     () => initialRankings.map(({ country }) => country),
     [initialRankings],
   );
+  const { analytics, getAnalytics } = useAnalytics();
 
   const handleVoteSuccess = useCallback(
     (countryName: string, voteType: "UPVOTE" | "DOWNVOTE") => {
@@ -47,7 +49,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             : ["#ff4d4d", "#ff8080", "#ffffff"],
       });
       toast.success(
-        t(voteType === 'UPVOTE' ? 'upvoteSuccess' : 'downvoteSuccess', {country: countryName}),
+        t(voteType === 'UPVOTE' ? 'upvoteSuccess' : 'downvoteSuccess', { country: countryName }),
       );
     },
     [t],
@@ -72,6 +74,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     setPurchaseOpen(true);
   }
 
+  useEffect(() => {
+    getAnalytics();
+  }, []);
+
   return (
     <div className="w-full flex-1 min-h-0 flex flex-col font-sans">
       <Confetti
@@ -95,9 +101,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
-              {t('realtime')}
-            </span>
+            <div className="font-mono text-[10px] uppeercase tracking-wider text-zinc-400 flex items-center justify-center gap-2">
+              <p>{t('realtime')}</p><p className="text-center">•</p><p>{analytics.pageviews} Views</p>
+            </div>
           </div>
         </div>
 
@@ -131,7 +137,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   : "text-zinc-400 hover:text-white",
               )}
             >
-              {t('allRanked', {count: initialRankings.length})}
+              {t('allRanked', { count: initialRankings.length })}
             </button>
             <button
               type="button"
@@ -143,7 +149,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   : "text-zinc-400 hover:text-white",
               )}
             >
-              {t('top', {count: 20})}
+              {t('top', { count: 20 })}
             </button>
             <button
               type="button"
@@ -155,7 +161,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   : "text-zinc-400 hover:text-white",
               )}
             >
-              {t('top', {count: 50})}
+              {t('top', { count: 50 })}
             </button>
           </div>
 
@@ -220,7 +226,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
         {/* Panel Footer / Status bar */}
         <div className="shrink-0 px-4 py-2 border-t border-white/[0.04] bg-[#0A0A0A] flex items-center justify-between text-[11px] font-mono text-zinc-500">
-          <span>{t('showing', {count: displayedList.length})}</span>
+          <span>{t('showing', { count: displayedList.length })}</span>
           <span>{t('verifiedLedger')}</span>
         </div>
       </div>
