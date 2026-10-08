@@ -9,7 +9,7 @@ import { Button } from "../ui/button";
 export const SiteHeader: React.FC = () => {
   const t = useTranslations("UI");
   return (
-    <header dir="ltr" className="h-12 shrink-0 mb-3 z-40 font-sans shadow-[0_16px_60px_rgba(0,0,0,0.35)]">
+    <header dir="ltr" className="h-12 shrink-0 z-40 font-sans shadow-[0_16px_60px_rgba(0,0,0,0.35)]">
       <div className="h-full flex items-center justify-between">
         {/* Left: Wordmark with Globe icon */}
         <div className="flex items-center gap-1 group">
