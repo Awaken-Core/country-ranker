@@ -334,7 +334,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       )}
 
       {/* 1. Compact Editorial Header */}
-      <div className="mb-2 shrink-0 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2.5 sm:mb-2 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-1 sm:py-0">
+      <div className="mb-2 shrink-0 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2.5 sm:mb-2 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-1 sm:py-0 md:block hidden ">
         <div className="mb-1 flex items-center justify-between sm:mb-0.5">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
@@ -342,7 +342,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
             <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-400 flex items-center justify-center gap-1.5 sm:text-[10px] sm:gap-2">
-              <p>{t('realtime')}</p><p className="text-center">•</p><p>{analytics.pageviews} Views</p>
+              <p>{t('realtime')}</p>
+              {analytics.pageviews !== 0 && (
+                <><p className="text-center">•</p><p>{analytics.visitors} Views</p></>
+              )}
             </div>
           </div>
         </div>
@@ -353,7 +356,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           </h1>
           <Link
             href="/countries"
-            className="group inline-flex w-fit items-center gap-1 text-[11px] text-zinc-400 hover:text-white transition-colors sm:text-xs"
+            className="group md:inline-flex hidden w-fit items-center gap-1 text-[11px] text-zinc-400 hover:text-white transition-colors sm:text-xs"
           >
             <span>{t('directoryLink')}</span>
             <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
