@@ -70,13 +70,13 @@ export function AdminSidebar({ userRole, userPermissions }: AdminSidebarProps) {
 
   return (
     <aside
-      className={`h-screen border-r border-zinc-800 bg-[#09090B] flex flex-col justify-between transition-all duration-200 z-30 select-none ${
-        sidebarCollapsed ? "w-16" : "w-64"
+      className={`fixed inset-x-0 bottom-0 z-40 h-16 w-full border-t border-zinc-800 bg-[#09090B] flex flex-col justify-between select-none md:relative md:inset-auto md:z-30 md:h-screen md:w-auto md:border-t-0 md:border-r md:transition-all md:duration-200 ${
+        sidebarCollapsed ? "md:w-16" : "md:w-64"
       }`}
     >
       {/* Top Header / Branding */}
-      <div>
-        <div className="h-14 border-b border-zinc-800 flex items-center justify-between px-3.5">
+      <div className="h-full md:h-auto">
+        <div className="hidden h-14 border-b border-zinc-800 md:flex items-center justify-between px-3.5">
           {!sidebarCollapsed ? (
             <Link href="/admin" className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-md bg-purple-500/15 text-purple-400 border border-purple-500/30 flex items-center justify-center">
@@ -109,7 +109,7 @@ export function AdminSidebar({ userRole, userPermissions }: AdminSidebarProps) {
         </div>
 
         {/* Navigation list */}
-        <nav className="p-2 space-y-1 mt-2">
+        <nav className="flex h-full items-center justify-around gap-1 p-1 md:mt-2 md:block md:h-auto md:space-y-1 md:p-2">
           {navItems
             .filter((item) => item.visible)
             .map((item) => {
@@ -119,15 +119,15 @@ export function AdminSidebar({ userRole, userPermissions }: AdminSidebarProps) {
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   title={sidebarCollapsed ? item.label : undefined}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex h-14 flex-1 items-center justify-center rounded-lg text-xs font-medium transition-all md:h-auto md:w-full md:gap-3 md:px-3 md:py-2 ${
                     isActive
                       ? "bg-purple-600/15 text-purple-300 border border-purple-500/30 shadow-[0_0_12px_rgba(168,85,247,0.15)]"
                       : "text-zinc-400 hover:text-white hover:bg-zinc-800/40 border border-transparent"
-                  } ${sidebarCollapsed ? "justify-center px-0" : ""}`}
+                  } ${sidebarCollapsed ? "md:justify-center md:px-0" : ""}`}
                 >
                   {item.icon}
                   {!sidebarCollapsed && (
-                    <div className="flex-1 flex items-center justify-between">
+                    <div className="hidden flex-1 items-center justify-between md:flex">
                       <span>{item.label}</span>
                       {item.badge && (
                         <span className="text-[9px] font-mono uppercase bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">
@@ -143,7 +143,7 @@ export function AdminSidebar({ userRole, userPermissions }: AdminSidebarProps) {
       </div>
 
       {/* Footer Return Link */}
-      <div className="p-3 border-t border-zinc-800/80">
+      <div className="hidden p-3 border-t border-zinc-800/80 md:block">
         <Link
           href="/"
           className={`flex items-center gap-2.5 py-2 px-2.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors ${

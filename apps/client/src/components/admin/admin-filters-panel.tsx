@@ -24,7 +24,7 @@ export function AdminFiltersPanel() {
   if (!filtersPanelOpen) return null;
 
   return (
-    <div className="w-72 shrink-0 border-l border-zinc-800 bg-[#0C0C0E] p-4 flex flex-col justify-between">
+    <div className="fixed inset-x-0 top-14 bottom-16 z-50 flex w-auto flex-col justify-between border-y border-zinc-800 bg-[#0C0C0E] p-4 md:relative md:inset-auto md:z-auto md:w-72 md:shrink-0 md:border-y-0 md:border-l">
       <div className="space-y-5">
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
           <div className="flex items-center gap-2">

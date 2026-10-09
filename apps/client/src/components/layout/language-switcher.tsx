@@ -38,7 +38,7 @@ export function LanguageSwitcher() {
     >
       <SelectTrigger
         aria-label="Language / भाषा"
-        className="h-8 w-28 shrink-0 gap-1 border-white/10 bg-[#0A0A0A] px-2 text-xs text-zinc-300 sm:w-36"
+        className="h-8 w-28 sm:w-36 shrink-0 gap-1 border-white/10 bg-[#0A0A0A] px-2 text-xs text-zinc-300 max-[380px]:w-9 max-[380px]:[&_[data-slot=select-value]]:hidden"
       >
         <Globe aria-hidden="true" className="size-3.5 shrink-0" />
         <SelectValue />

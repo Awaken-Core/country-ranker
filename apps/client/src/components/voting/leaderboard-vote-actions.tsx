@@ -98,15 +98,12 @@ export function LeaderboardVoteActions({
     onOpenPurchase();
   }
 
-  // const isUpvoted = userVoted === "UPVOTE";
-  // const isDownvoted = userVoted === "DOWNVOTE";
-
-  const isUpvoted = false;
-  const isDownvoted = false;
+  const isUpvoted = userVoted === "UPVOTE";
+  const isDownvoted = userVoted === "DOWNVOTE";
 
   return (
     <div
-      className="relative flex items-center justify-end gap-2"
+      className="relative flex items-center justify-end gap-1 sm:gap-2"
       onClick={(event) => event.preventDefault()}
     >
       <motion.button
@@ -119,7 +116,7 @@ export function LeaderboardVoteActions({
         transition={{ type: "spring", stiffness: 450, damping: 25 }}
         onClick={() => void vote("UPVOTE")}
         className={cn(
-          "flex size-8 shrink-0 cursor-pointer select-none items-center justify-center rounded-lg border transition-all",
+          "flex size-6 sm:size-8 shrink-0 cursor-pointer select-none items-center justify-center rounded-md sm:rounded-lg border transition-all",
           isUpvoted
             ? "border-[#00DF81] bg-[#00DF81] text-[#041E12] shadow-[0_0_12px_rgba(0,223,129,0.35)]"
             : "border-[#005230] bg-[#061A12] text-[#00DF81] hover:border-[#008f55] hover:bg-[#09261a] shadow-[0_0_12px_rgba(0,223,129,0.35)]",
@@ -129,12 +126,12 @@ export function LeaderboardVoteActions({
         {pending === "UPVOTE" ? (
           <Loader2
             className={cn(
-              "size-3.5 animate-spin",
+              "size-3 sm:size-3.5 animate-spin",
               isUpvoted ? "text-[#041E12]" : "text-[#00DF81]",
             )}
           />
         ) : (
-          <span className="-translate-y-px font-sans text-[11px] font-black leading-none">
+          <span className="-translate-y-px font-sans text-[9px] sm:text-[11px] font-black leading-none">
             ▲
           </span>
         )}
@@ -150,7 +147,7 @@ export function LeaderboardVoteActions({
         transition={{ type: "spring", stiffness: 450, damping: 25 }}
         onClick={() => void vote("DOWNVOTE")}
         className={cn(
-          "flex size-8 shrink-0 cursor-pointer select-none items-center justify-center rounded-lg border transition-all",
+          "flex size-6 sm:size-8 shrink-0 cursor-pointer select-none items-center justify-center rounded-md sm:rounded-lg border transition-all",
           isDownvoted
             ? "border-[#FF4D4D] bg-[#FF4D4D] text-[#1E0507] shadow-[0_0_12px_rgba(255,77,77,0.35)]"
             : "border-[#4A0D15] bg-[#1A070B] text-[#FF4D4D] hover:border-[#7A1624] hover:bg-[#280B11] shadow-[0_0_12px_rgba(255,77,77,0.35)]",
@@ -160,12 +157,12 @@ export function LeaderboardVoteActions({
         {pending === "DOWNVOTE" ? (
           <Loader2
             className={cn(
-              "size-3.5 animate-spin",
+              "size-3 sm:size-3.5 animate-spin",
               isDownvoted ? "text-[#1E0507]" : "text-[#FF4D4D]",
             )}
           />
         ) : (
-          <span className="translate-y-px font-sans text-[11px] font-black leading-none">
+          <span className="translate-y-px font-sans text-[9px] sm:text-[11px] font-black leading-none">
             ▼
           </span>
         )}
@@ -180,7 +177,7 @@ export function LeaderboardVoteActions({
         whileTap={{ scale: 0.92 }}
         transition={{ type: "spring", stiffness: 450, damping: 25 }}
         onClick={purchaseVotes}
-        className="flex h-8 min-w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-amber-500/35 bg-amber-500/10 px-2 font-mono text-[11px] font-medium text-amber-300 transition-all hover:border-amber-400/60 hover:bg-amber-500/15 disabled:cursor-not-allowed disabled:opacity-40 shadow-[0_0_12px_rgba(168,137,50,0.35)]"
+        className="flex h-6 min-w-7 sm:h-8 sm:min-w-9 shrink-0 cursor-pointer items-center justify-center rounded-md sm:rounded-lg border border-amber-500/35 bg-amber-500/10 px-1 sm:px-2 font-mono text-[9px] sm:text-[11px] font-medium text-amber-300 transition-all hover:border-amber-400/60 hover:bg-amber-500/15 disabled:cursor-not-allowed disabled:opacity-40 shadow-[0_0_12px_rgba(168,137,50,0.35)]"
       >
         $5
       </motion.button>

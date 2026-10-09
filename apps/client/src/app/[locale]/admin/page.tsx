@@ -78,9 +78,9 @@ export default function AdminDashboardPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header Bar */}
-        <header className="h-14 border-b border-zinc-800 bg-[#09090B] shrink-0 flex items-center justify-between px-6">
+        <header className="h-14 border-b border-zinc-800 bg-[#09090B] shrink-0 flex items-center justify-between gap-3 px-3 sm:px-6">
           <div className="flex items-center gap-2">
-            <h1 className="text-sm font-semibold capitalize tracking-tight">
+            <h1 className="truncate text-xs sm:text-sm font-semibold capitalize tracking-tight">
               {activeTab === "countries" && "Country Directory & Adjustments"}
               {activeTab === "votes" && "Voting Ledger & Ingestion Stream"}
               {activeTab === "users" && "User Accounts & RBAC Roles"}
@@ -90,8 +90,8 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-zinc-400 font-mono">{adminUser.email}</span>
+            <div className="flex shrink-0 items-center gap-2 text-xs">
+              <span className="hidden sm:inline text-zinc-400 font-mono">{adminUser.email}</span>
               <span
                 className={`font-mono text-[9px] px-2 py-0.5 rounded border uppercase font-semibold ${
                   adminUser.role === "SUPER_ADMIN"
@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
         </header>
 
         {/* Tab Body */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-3 pb-20 sm:p-6">
           {activeTab === "countries" && (
             <AdminCountriesTab userRole={adminUser.role} userPermissions={adminUser.permissions} />
           )}

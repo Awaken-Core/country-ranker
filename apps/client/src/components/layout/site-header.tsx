@@ -17,12 +17,12 @@ export const SiteHeader: React.FC = () => {
             <div className="w-6 h-6 rounded-md flex items-center justify-center transition-all">
               <Globe className="size-3.5" />
             </div>
-            <span className="text-[16px] font-medium tracking-[-0.1px] text-white group-hover:text-zinc-200 transition-colors">
+            <span className="text-sm sm:text-[16px] font-medium tracking-[-0.1px] text-white group-hover:text-zinc-200 transition-colors">
               RankMyCountry
             </span>
           </Link>
 
-          <div className="flex items-center gap-4 group px-6">
+          <div className="hidden sm:flex items-center gap-4 group px-6">
             <Link
               href="/countries"
               className="text-xs text-zinc-400 hover:text-white/80 transition-colors font-normal rounded-md hover:underline"
@@ -41,7 +41,7 @@ export const SiteHeader: React.FC = () => {
         {/* Right: Directory Link & Auth Dialog */}
         <div className="flex items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
-          <Button variant="ghost" className="border border-white/20 rounded-full bg-zinc-900">
+          <Button variant="ghost" className="hidden sm:inline-flex border border-white/20 rounded-full bg-zinc-900">
             <BellDot />
           </Button>
           <HeaderAuth />

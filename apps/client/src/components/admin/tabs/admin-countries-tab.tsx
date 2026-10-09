@@ -121,7 +121,7 @@ export function AdminCountriesTab({ userRole, userPermissions }: AdminCountriesT
       {/* Countries Table */}
       <div className="rounded-xl border border-zinc-800/80 bg-[#0B0B0D] overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-sans">
+          <table className="min-w-[640px] w-full text-left text-xs font-sans">
             <thead className="border-b border-zinc-800 bg-zinc-900/40 text-zinc-400 font-mono uppercase text-[10px] tracking-wider">
               <tr>
                 <th className="py-3 px-4">Country</th>

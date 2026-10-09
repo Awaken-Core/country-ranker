@@ -274,7 +274,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     };
 
     // 1. Try finding row immediately
-    let targetRow =
+    const targetRow =
       userCountryRowRef.current ??
       (scrollContainer.querySelector(`[data-country-code="${targetCode}"]`) as HTMLElement | null);
 
@@ -364,14 +364,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       {/* 2. Self-Contained Leaderboard Panel with Dedicated Internal Scroll */}
       <div className="flex-1 min-h-0 flex flex-col rounded-xl border border-white/[0.08] bg-[#0C0C0C] overflow-hidden shadow-2xl">
         {/* Panel Toolbar (Sticky top inside container) */}
-        <div className="shrink-0 px-4 py-2.5 border-b border-white/[0.06] bg-[#0E0E0E] flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="shrink-0 px-2.5 sm:px-4 py-2.5 border-b border-white/[0.06] bg-[#0E0E0E] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
           {/* Filter Pills */}
-          <div className="flex items-center gap-2 self-start sm:self-center">
+          <div className="flex items-center gap-1 sm:gap-2 self-start sm:self-center">
             <button
               type="button"
               onClick={() => setFilter("all")}
               className={cn(
-                "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                "px-2 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer",
                 filter === "all"
                   ? "bg-[#1c1c1c] text-white border border-white/[0.1] shadow-sm"
                   : "text-zinc-400 hover:text-white",
@@ -383,7 +383,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               type="button"
               onClick={() => setFilter("top20")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer",
+                "px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all cursor-pointer",
                 filter === "top20"
                   ? "bg-[#1c1c1c] text-white border border-white/[0.1] shadow-sm"
                   : "text-zinc-400 hover:text-white",
@@ -395,7 +395,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               type="button"
               onClick={() => setFilter("top50")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer",
+                "px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all cursor-pointer",
                 filter === "top50"
                   ? "bg-[#1c1c1c] text-white border border-white/[0.1] shadow-sm"
                   : "text-zinc-400 hover:text-white",
@@ -429,7 +429,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         </div>
 
         {/* Table Column Headers */}
-        <div className="shrink-0 grid grid-cols-[28px_minmax(0,1fr)_28px_124px] sm:grid-cols-12 mx-2 px-2 sm:mx-0 sm:px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[10px] uppercase tracking-wider text-zinc-500">
+        <div className="shrink-0 grid grid-cols-[32px_minmax(0,1fr)_28px_96px] sm:grid-cols-12 mx-2 px-1 sm:mx-0 sm:px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500">
           <div className="col-span-1 truncate" title={t('rank')}>{t('rank')}</div>
           <div className="col-span-1 sm:col-span-7 truncate">{t('country')}</div>
           <div className="col-span-1 text-end truncate" title={t('score')}>{t('score')}</div>

@@ -50,7 +50,7 @@ export const CountryRankingRow = React.forwardRef<
         whileHover={{ x: 2 }}
         transition={{ duration: 0.12, ease: "easeOut" }}
       className={cn(
-        "group grid grid-cols-12 items-center px-4 py-2.5 rounded-lg border text-xs transition-all duration-300",
+        "group grid grid-cols-[32px_minmax(0,1fr)_28px_96px] sm:grid-cols-12 items-center px-2 py-1.5 sm:px-4 sm:py-2.5 rounded-lg border text-xs transition-all duration-300",
         "relative z-0",
         isHighlighted
           ? "border-emerald-500/60 bg-emerald-950/25 ring-1 ring-emerald-500/30"
@@ -67,7 +67,7 @@ export const CountryRankingRow = React.forwardRef<
       )}
     >
       {/* Game-style rank badge: animated podium emblems, clean numerals below. */}
-      <div className="col-span-1 flex items-center">
+      <div className="col-start-1 col-span-1 flex items-center">
         <Link
           href={`/country/${country.slug}`}
           className="w-full flex items-center justify-start"
@@ -97,7 +97,7 @@ export const CountryRankingRow = React.forwardRef<
               }}
               whileHover={reduceMotion ? undefined : { scale: 1.12, rotate: 3 }}
               className={cn(
-                "relative isolate flex size-10 items-center justify-center overflow-hidden rounded-md border font-mono text-lg font-black tabular-nums shadow-lg",
+                "relative isolate flex size-7 sm:size-10 items-center justify-center overflow-hidden rounded-md border font-mono text-base sm:text-lg font-black tabular-nums shadow-lg",
                 "before:absolute before:inset-[-60%] before:-z-10 before:animate-[spin_4s_linear_infinite] before:bg-[conic-gradient(from_90deg,transparent_0deg,rgba(255,255,255,.5)_55deg,transparent_105deg)]",
                 "after:absolute after:inset-px after:-z-10 after:rounded-[5px]",
                 isGold &&
@@ -123,7 +123,7 @@ export const CountryRankingRow = React.forwardRef<
               initial={reduceMotion ? false : { opacity: 0, x: -5 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.22, delay: Math.min(rank, 12) * 0.025 }}
-              className="flex size-10 items-center justify-center font-mono text-xl font-medium tabular-nums text-zinc-400 transition-colors group-hover:text-white"
+              className="flex size-7 sm:size-10 items-center justify-center font-mono text-base sm:text-xl font-medium tabular-nums text-zinc-400 transition-colors group-hover:text-white"
             >
               {rank}
             </motion.span>
@@ -134,14 +134,14 @@ export const CountryRankingRow = React.forwardRef<
       {/* Country Name + Flag + Code (cols 3-8) */}
       <Link
         href={`/country/${country.slug}`}
-        className="col-span-7 flex items-center gap-2.5 min-w-0 pr-2"
+        className="col-start-2 col-span-1 sm:col-span-7 flex items-center gap-1.5 sm:gap-2.5 min-w-0 pr-1 sm:pr-2"
       >
         <CountryFlag
           code={country.code}
           size="sm"
           className="rounded-[2px] shadow-sm shrink-0"
         />
-        <span className="font-medium text-zinc-200 group-hover:text-white transition-colors truncate">
+        <span className="text-[11px] sm:text-xs font-medium text-zinc-200 group-hover:text-white transition-colors truncate">
           {countryName(locale, country.code, country.name)}
         </span>
         {isUserCountry && (
@@ -149,20 +149,20 @@ export const CountryRankingRow = React.forwardRef<
             YOUR COUNTRY
           </span>
         )}
-        <span className="font-mono text-[10px] text-zinc-500 uppercase shrink-0">
+        <span className="hidden min-[360px]:inline font-mono text-[9px] sm:text-[10px] text-zinc-500 uppercase shrink-0">
           {country.code}
         </span>
       </Link>
 
       {/* Net score */}
-      <div className="col-span-1 flex items-center justify-end">
-        <span className="font-mono text-xs font-semibold text-zinc-300 group-hover:text-white tabular-nums transition-colors">
+      <div className="col-start-3 sm:col-start-auto col-span-1 flex items-center justify-end">
+        <span className="font-mono text-[10px] sm:text-xs font-semibold text-zinc-300 group-hover:text-white tabular-nums transition-colors">
           {score.toLocaleString(locale)}
         </span>
       </div>
 
       {/* Actions */}
-      <div className="col-span-3 flex items-center justify-end font-mono text-[11px]">
+      <div className="col-start-4 sm:col-start-auto col-span-1 sm:col-span-3 flex items-center justify-end font-mono text-[11px]">
         <LeaderboardVoteActions
           slug={country.slug}
           countryName={countryName(locale, country.code, country.name)}

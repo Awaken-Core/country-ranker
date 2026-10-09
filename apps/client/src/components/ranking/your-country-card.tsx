@@ -127,7 +127,10 @@ export const YourCountryCard: React.FC<YourCountryCardProps> = ({
             }}
             className="shrink-0 border-t border-emerald-500/20 bg-[#0c120e] relative z-10 transition-colors overflow-hidden"
           >
-            <div className="px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-4">
+            <div className="group mx-2 grid grid-cols-[32px_minmax(0,1fr)_28px_96px] sm:grid-cols-12 items-center px-2 py-1.5 sm:px-4 sm:py-2.5 rounded-lg border border-emerald-500/30 bg-emerald-950/15 text-xs">
+              <div className="col-start-1 sm:col-span-1 flex size-7 sm:size-10 items-center justify-center font-mono text-base sm:text-xl font-medium tabular-nums text-zinc-400">
+                {rank}
+              </div>
               {/* Left: Clickable target that scrolls to real country row */}
               <div
                 onClick={onScrollToCountry}
@@ -140,16 +143,16 @@ export const YourCountryCard: React.FC<YourCountryCardProps> = ({
                   }
                 }}
                 aria-label={`${t("scrollToCountry", { country: localizedName })}, ${t("yourCountryRank", { rank })}`}
-                className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 cursor-pointer group select-none text-left"
+                className="col-start-2 sm:col-start-auto sm:col-span-7 flex items-center gap-1.5 sm:gap-2.5 min-w-0 pr-1 sm:pr-2 cursor-pointer select-none text-left"
               >
                 <CountryFlag
                   code={country.code}
-                  size="md"
+                  size="sm"
                   className="rounded-[3px] shadow-md shrink-0 ring-1 ring-white/10 group-hover:scale-105 transition-transform"
                 />
 
                 <div className="min-w-0 flex flex-col justify-center">
-                  <div className="flex items-center gap-1.5 flex-wrap">
+                  <div className="hidden sm:flex items-center gap-1.5 flex-wrap">
                     <span
                       id={headingId}
                       className="font-mono text-[9px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1 py-0.2 rounded"
@@ -168,11 +171,11 @@ export const YourCountryCard: React.FC<YourCountryCardProps> = ({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="font-semibold text-sm sm:text-base text-white group-hover:text-emerald-300 transition-colors truncate">
+                  <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-0">
+                    <span className="font-semibold text-[11px] sm:text-base text-white group-hover:text-emerald-300 transition-colors truncate">
                       {localizedName}
                     </span>
-                    <span className="font-mono text-[11px] text-zinc-500 uppercase shrink-0">
+                    <span className="hidden min-[360px]:inline font-mono text-[9px] sm:text-[11px] text-zinc-500 uppercase shrink-0">
                       {country.code}
                     </span>
 
@@ -185,7 +188,7 @@ export const YourCountryCard: React.FC<YourCountryCardProps> = ({
                         exit={reduceMotion ? undefined : { opacity: 0, scale: 0.85 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
                         className={cn(
-                          "inline-flex items-center justify-center size-5 rounded border text-[11px] font-sans font-black transition-colors shrink-0",
+                          "hidden sm:inline-flex items-center justify-center size-5 rounded border text-[11px] font-sans font-black transition-colors shrink-0",
                           isAbove
                             ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.2)]"
                             : "border-white/[0.08] bg-zinc-900 text-zinc-400 group-hover:border-white/20 group-hover:text-zinc-300"
@@ -204,10 +207,14 @@ export const YourCountryCard: React.FC<YourCountryCardProps> = ({
                 </div>
               </div>
 
+              <span className="col-start-3 sm:col-start-auto sm:col-span-1 text-right font-mono text-[10px] sm:text-xs font-semibold tabular-nums text-zinc-300">
+                {score.toLocaleString(locale)}
+              </span>
+
               {/* Right: Actions & Change Country */}
-              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <div className="col-start-4 sm:col-start-auto sm:col-span-3 flex items-center justify-end gap-1 sm:gap-3 shrink-0">
                 {/* Mobile Score view */}
-                <div className="sm:hidden flex flex-col items-end font-mono text-[10px] text-zinc-400 pr-1">
+                <div className="hidden flex-col items-end font-mono text-[10px] text-zinc-400 pr-1">
                   <span>{t("score")}</span>
                   <span className="font-semibold text-zinc-200">
                     {score.toLocaleString(locale)}
@@ -226,7 +233,7 @@ export const YourCountryCard: React.FC<YourCountryCardProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectorOpen(true)}
-                  className="text-zinc-500 hover:text-zinc-200 transition-colors p-1.5 rounded-lg hover:bg-white/[0.05] cursor-pointer"
+                  className="hidden sm:inline-flex text-zinc-500 hover:text-zinc-200 transition-colors p-1.5 rounded-lg hover:bg-white/[0.05] cursor-pointer"
                   title={t("changeCountry")}
                   aria-label={t("changeCountry")}
                 >
