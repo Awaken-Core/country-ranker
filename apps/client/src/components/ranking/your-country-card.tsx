@@ -125,9 +125,43 @@ export const YourCountryCard: React.FC<YourCountryCardProps> = ({
               duration: reduceMotion ? 0.1 : 0.22,
               ease: [0.25, 1, 0.5, 1],
             }}
-            className="shrink-0 border-t border-emerald-500/20 bg-[#0c120e] relative z-10 transition-colors overflow-hidden"
+            className="relative z-10 shrink-0 overflow-hidden border-t border-emerald-500/20 bg-[#080d0a] p-1.5 transition-colors sm:bg-[#0c120e] sm:p-0"
           >
-            <div className="px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-4">
+            {/* Mobile: mirror the compact highlighted leaderboard row. */}
+            <div className="grid min-h-12 grid-cols-[36px_minmax(0,1fr)_auto_auto] items-center gap-2 rounded-xl border border-emerald-500/35 bg-emerald-950/15 px-2 sm:hidden">
+              <button
+                type="button"
+                onClick={onScrollToCountry}
+                className="flex size-8 items-center justify-center font-mono text-base text-zinc-300"
+                aria-label={t("scrollToCountry", { country: localizedName })}
+              >
+                {rank}
+              </button>
+
+              <button
+                type="button"
+                onClick={onScrollToCountry}
+                className="flex min-w-0 items-center gap-2 text-left"
+                aria-label={`${localizedName}, ${t("yourCountryRank", { rank })}`}
+              >
+                <CountryFlag code={country.code} size="sm" className="shrink-0 rounded-[2px] shadow-sm" />
+                <span className="truncate text-xs font-semibold text-white">{localizedName}</span>
+                <span className="hidden shrink-0 font-mono text-[9px] uppercase text-zinc-500 min-[390px]:inline">{country.code}</span>
+              </button>
+
+              <span className="font-mono text-[11px] font-semibold tabular-nums text-zinc-200">
+                {score.toLocaleString(locale)}
+              </span>
+
+              <LeaderboardVoteActions
+                slug={country.slug}
+                countryName={localizedName}
+                onVoteSuccess={onVoteSuccess}
+                onOpenPurchase={() => onOpenPurchase(country.id)}
+              />
+            </div>
+
+            <div className="hidden px-4 py-2 sm:flex sm:items-center sm:justify-between sm:gap-4">
               {/* Left: Clickable target that scrolls to real country row */}
               <div
                 onClick={onScrollToCountry}
