@@ -24,8 +24,8 @@ function createVotingHarness() {
   const country = {
     id: "country-1",
     slug: "testland",
-    totalUpvoteCount: 0n,
-    totalDownvoteCount: 0n,
+    totalUpvoteCount: BigInt(0),
+    totalDownvoteCount: BigInt(0),
   };
   const usage = {
     userId: "user-1",
@@ -176,11 +176,11 @@ describe("append-only voting ledger", () => {
       harness.logs.map(({ voteType, count }) => ({ voteType, count })),
       directions.map((voteType) => ({ voteType, count: 1 })),
     );
-    assert.equal(harness.country.totalUpvoteCount, 3n);
-    assert.equal(harness.country.totalDownvoteCount, 2n);
+    assert.equal(harness.country.totalUpvoteCount, BigInt(3));
+    assert.equal(harness.country.totalDownvoteCount, BigInt(2));
     assert.equal(
       harness.country.totalUpvoteCount - harness.country.totalDownvoteCount,
-      1n,
+      BigInt(1),
     );
   });
 
@@ -198,7 +198,7 @@ describe("append-only voting ledger", () => {
     assert.deepEqual(replay, first);
     assert.equal(harness.logs.length, 1);
     assert.equal(harness.freeDetails.length, 1);
-    assert.equal(harness.country.totalUpvoteCount, 1n);
+    assert.equal(harness.country.totalUpvoteCount, BigInt(1));
     assert.equal(harness.usage.upvoteUsedCount, 1);
   });
 });
