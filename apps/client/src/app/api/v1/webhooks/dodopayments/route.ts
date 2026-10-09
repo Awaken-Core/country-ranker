@@ -37,6 +37,18 @@ async function lock(tx: Tx, key: string) {
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`;
 }
 
+async function nextAvailableSponsorPosition(tx: Tx) {
+  const occupied = await tx.slots.findMany({
+    where: { position: { not: null } },
+    select: { position: true },
+  });
+  const used = new Set(occupied.flatMap((slot) => slot.position ?? []));
+  for (let position = 1; position <= 20; position += 1) {
+    if (!used.has(position)) return position;
+  }
+  return null;
+}
+
 function termFrom(startDate: Date) {
   const endDate = new Date(startDate);
   endDate.setUTCDate(endDate.getUTCDate() + 30);
@@ -161,8 +173,10 @@ async function processNewSponsor(tx: Tx, data: Success) {
     throw new Error("No sponsor slots are available.");
   }
 
+  const position = await nextAvailableSponsorPosition(tx);
+  if (!position) throw new Error("No sponsor slots are available.");
   const slot = await tx.slots.create({
-    data: { userId: user.id, isActive: true },
+    data: { userId: user.id, isActive: true, position },
     select: { id: true },
   });
   const startDate = new Date();

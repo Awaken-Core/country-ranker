@@ -13,6 +13,7 @@ import { Loader2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 const DEFAULT_ADMIN_PERMISSIONS: { key: AdminPermission; label: string }[] = [
+  { key: "ADS_MANAGE", label: "Manage Advertisements" },
   { key: "COUNTRIES_VIEW", label: "View Countries" },
   { key: "COUNTRIES_EDIT", label: "Edit Countries" },
   { key: "VOTES_VIEW", label: "View Votes" },

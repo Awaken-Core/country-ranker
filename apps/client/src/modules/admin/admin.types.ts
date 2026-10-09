@@ -2,6 +2,7 @@ export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN" | "CUSTOMER";
 
 export type AdminPermission =
   | "MANAGE_ADMINS"
+  | "ADS_MANAGE"
   | "COUNTRIES_VIEW"
   | "COUNTRIES_EDIT"
   | "VOTES_VIEW"

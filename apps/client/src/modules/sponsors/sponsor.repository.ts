@@ -6,10 +6,11 @@ export class SponsorRepository {
       where: {
         isActive: true,
       },
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      orderBy: [{ position: "asc" }, { createdAt: "asc" }, { id: "asc" }],
       take: limit,
       select: {
         id: true,
+        position: true,
         sponsor: {
           select: {
             id: true,
