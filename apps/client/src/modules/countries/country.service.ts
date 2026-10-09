@@ -69,23 +69,38 @@ export class CountryService {
 
   async getCountryBySlug(slug: string): Promise<CountryDTO | null> {
     if (!slug) return null;
-    const item = await this.repo.findBySlug(slug);
-    if (!item) return null;
-    return this.mapToDTO(item);
+    try {
+      const item = await this.repo.findBySlug(slug);
+      if (!item) return null;
+      return this.mapToDTO(item);
+    } catch (error) {
+      console.warn(`Could not fetch country slug "${slug}" (offline or error):`, error);
+      return null;
+    }
   }
 
   async getCountryByCode(code: string): Promise<CountryDTO | null> {
     if (!code) return null;
-    const item = await this.repo.findByCode(code);
-    if (!item) return null;
-    return this.mapToDTO(item);
+    try {
+      const item = await this.repo.findByCode(code);
+      if (!item) return null;
+      return this.mapToDTO(item);
+    } catch (error) {
+      console.warn(`Could not fetch country code "${code}" (offline or error):`, error);
+      return null;
+    }
   }
 
   async getCountryById(id: string): Promise<CountryDTO | null> {
     if (!id) return null;
-    const item = await this.repo.findById(id);
-    if (!item) return null;
-    return this.mapToDTO(item);
+    try {
+      const item = await this.repo.findById(id);
+      if (!item) return null;
+      return this.mapToDTO(item);
+    } catch (error) {
+      console.warn(`Could not fetch country id "${id}" (offline or error):`, error);
+      return null;
+    }
   }
 }
 

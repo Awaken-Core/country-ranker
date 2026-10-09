@@ -5,6 +5,7 @@ import {NextIntlClientProvider, hasLocale} from 'next-intl';
 import {setRequestLocale, getTranslations} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 import {routing, rtlLocales} from '@/i18n/routing';
+import { SITE_URL, getCanonicalUrl, getAlternateLanguages } from "@/i18n/seo";
 import { cn } from "@/lib/utils";
 import Providers from "@/components/provider";
 
@@ -20,9 +21,60 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('UI');
-  return {title: `${t('leaderboard')} | CountryRank`, description: t('rankingDescription')};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations("UI");
+  const canonicalUrl = getCanonicalUrl(locale);
+  const title = `${t("leaderboard")} | CountryRank`;
+  const description = t("rankingDescription");
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: title,
+      template: "%s | CountryRank",
+    },
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: getAlternateLanguages(),
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "CountryRank",
+      locale: locale,
+      type: "website",
+      images: [
+        {
+          url: "/image/logo.png",
+          width: 512,
+          height: 512,
+          alt: "CountryRank - Global Country Leaderboard",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/image/logo.png"],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+      },
+    },
+  };
 }
 export default async function RootLayout({
   children,
