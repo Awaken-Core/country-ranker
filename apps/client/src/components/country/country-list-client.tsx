@@ -27,53 +27,43 @@ export const CountryListClient: React.FC<CountryListClientProps> = ({ countries 
 
   return (
     <div className="w-full flex-1 min-h-0 flex flex-col font-sans">
-      {/* Top Header */}
-      <div className="shrink-0 mb-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            {t('directory')}
-          </h1>
-          <p className="text-xs text-zinc-400">
-            {t('directoryDescription')}
-          </p>
-        </div>
-
-        <Link
-          href="/"
-          className="group inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="size-3 transition-transform group-hover:-translate-x-0.5" />
-          <span>{t('back')}</span>
-        </Link>
-      </div>
-
       {/* Directory Container with Internal Scroll */}
       <div className="flex-1 min-h-0 flex flex-col rounded-xl border border-white/[0.08] bg-[#0C0C0C] overflow-hidden shadow-2xl">
-        {/* Search Toolbar */}
-        <div className="shrink-0 px-4 py-2.5 border-b border-white/[0.06] bg-[#0E0E0E] flex items-center justify-between gap-3">
-          <span className="text-xs font-mono text-zinc-400">
+        {/* Search & Actions Toolbar */}
+        <div className="shrink-0 px-3 py-2.5 sm:px-4 border-b border-white/[0.06] bg-[#0E0E0E] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
+          <span className="text-xs font-mono text-zinc-400 self-start sm:self-center">
             {t('listed', {count: filtered.length})}
           </span>
 
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-zinc-500 pointer-events-none" />
-            <input
-              type="text"
-              placeholder={t('search')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-8 bg-[#080808] border border-white/[0.08] rounded-lg pl-8 pr-7 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400/20 transition-all"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-zinc-400 hover:text-white rounded transition-colors"
-                aria-label={t('clearSearch')}
-              >
-                <X className="size-3.5" />
-              </button>
-            )}
+          <div className="flex w-full sm:w-auto items-center gap-2 sm:gap-3">
+            <div className="relative flex-1 sm:w-60 sm:flex-initial">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-zinc-500 pointer-events-none" />
+              <input
+                type="text"
+                placeholder={t('search')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-8 bg-[#080808] border border-white/[0.08] rounded-lg pl-8 pr-7 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400/20 transition-all"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-zinc-400 hover:text-white rounded transition-colors"
+                  aria-label={t('clearSearch')}
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+            </div>
+
+            <Link
+              href="/"
+              className="group shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all"
+            >
+              <ArrowLeft className="size-3.5 text-zinc-500 group-hover:text-white transition-transform group-hover:-translate-x-0.5" />
+              <span className="whitespace-nowrap">{t('back')}</span>
+            </Link>
           </div>
         </div>
 

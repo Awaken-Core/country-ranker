@@ -333,38 +333,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         />
       )}
 
-      {/* 1. Compact Editorial Header */}
-      <div className="mb-2 shrink-0 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2.5 sm:mb-2 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-1 sm:py-0 md:block hidden ">
-        <div className="mb-1 flex items-center justify-between sm:mb-0.5">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-400 flex items-center justify-center gap-1.5 sm:text-[10px] sm:gap-2">
-              <p>{t('realtime')}</p>
-              {analytics.pageviews !== 0 && (
-                <><p className="text-center">•</p><p>{analytics.visitors} Views</p></>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-          <h1 className="text-xl sm:text-2xl font-semibold tracking-[-0.025em] text-white">
-            {t('leaderboard')}
-          </h1>
-          <Link
-            href="/countries"
-            className="group md:inline-flex hidden w-fit items-center gap-1 text-[11px] text-zinc-400 hover:text-white transition-colors sm:text-xs"
-          >
-            <span>{t('directoryLink')}</span>
-            <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-      </div>
-
-      {/* 2. Self-Contained Leaderboard Panel with Dedicated Internal Scroll */}
+      {/* Leaderboard Panel with Dedicated Internal Scroll */}
       <div className="flex-1 min-h-0 flex flex-col rounded-xl border border-white/[0.08] bg-[#0C0C0C] overflow-hidden shadow-2xl">
         {/* Panel Toolbar (Sticky top inside container) */}
         <div className="shrink-0 px-2.5 py-2.5 sm:px-4 border-b border-white/[0.06] bg-[#0E0E0E] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
@@ -408,32 +377,48 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             </button>
           </div>
 
-          {/* Search Input */}
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-zinc-500 pointer-events-none" />
-            <input
-              type="text"
-              placeholder={t('search')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-8 bg-[#080808] border border-white/[0.08] rounded-lg pl-8 pr-7 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400/20 transition-all"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-zinc-400 hover:text-white rounded transition-colors"
-                aria-label={t('clearSearch')}
-              >
-                <X className="size-3.5" />
-              </button>
-            )}
+          {/* Right Controls: Search Input + All Countries Directory Link */}
+          <div className="flex w-full sm:w-auto items-center gap-2 sm:gap-3">
+            <div className="relative flex-1 sm:w-56 sm:flex-initial">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-zinc-500 pointer-events-none" />
+              <input
+                type="text"
+                placeholder={t('search')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-8 bg-[#080808] border border-white/[0.08] rounded-lg pl-8 pr-7 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400/20 transition-all"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-zinc-400 hover:text-white rounded transition-colors"
+                  aria-label={t('clearSearch')}
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+            </div>
+
+            <Link
+              href="/countries"
+              className="group shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-all"
+            >
+              <span className="whitespace-nowrap">{t('directoryLink')}</span>
+              <ArrowRight className="size-3.5 text-zinc-500 group-hover:text-white transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </div>
         </div>
 
         {/* Table Column Headers */}
-        <div className="shrink-0 grid grid-cols-[42px_minmax(0,1fr)_112px] sm:grid-cols-12 mx-1 px-2 sm:mx-0 sm:px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500">
-          <div className="sm:col-span-1 truncate" title={t('rank')}>{t('rank')}</div>
+        <div className="shrink-0 grid grid-cols-[56px_minmax(0,1fr)_112px] sm:grid-cols-12 mx-1 px-2 sm:mx-0 sm:px-4 py-2 border-b border-white/[0.04] bg-[#0A0A0A] font-mono text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500">
+          <div className="sm:col-span-1 flex items-center gap-1.5 text-emerald-400 font-semibold" title={t('rank')}>
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+            </span>
+            <span className="truncate">{t('rank')}</span>
+          </div>
           <div className="sm:col-span-7 truncate">{t('country')}</div>
           <div className="hidden sm:block sm:col-span-1 text-end truncate" title={t('score')}>{t('score')}</div>
           <div className="sm:col-span-3 text-end sm:pr-14 truncate">{t('actions')}</div>
