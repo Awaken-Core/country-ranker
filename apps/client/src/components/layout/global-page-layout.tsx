@@ -87,7 +87,7 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
         </div>
 
         {/* Center Main Content Container (Controlled width, centered) */}
-        <main className="w-full max-w-[980px] flex flex-col gap-3 sm:gap-6 lg:gap-12 min-h-0 min-w-0 mx-auto px-0 sm:px-3">
+        <main className="w-full max-w-[980px] flex flex-col gap-2 sm:gap-3.5 min-h-0 min-w-0 mx-auto px-0 sm:px-3">
           <SiteHeader />
           {children}
           <MobileAdMarquee
