@@ -87,7 +87,7 @@ export function AdminAdsTab({
   const [draftPosition, setDraftPosition] = useState<number | null>(null);
   const [moveToPosition, setMoveToPosition] = useState("2");
   const [draggedPosition, setDraggedPosition] = useState<number | null>(null);
-  const { data, isLoading, isRefetching, refetch } = useQuery({
+  const { data, isError, error, isLoading, isRefetching, refetch } = useQuery({
     queryKey: ["admin", "ads"],
     queryFn: async () => {
       const response = await fetch("/api/v1/admin/ads");
@@ -167,6 +167,16 @@ export function AdminAdsTab({
     return (
       <div className="flex items-center gap-2 text-sm text-zinc-400">
         <Loader2 className="size-4 animate-spin" /> Loading advertisements…
+      </div>
+    );
+  if (isError)
+    return (
+      <div className="rounded-lg border border-red-900/70 bg-red-950/30 p-4 text-sm text-red-200">
+        <p className="font-medium">Unable to load advertisement positions.</p>
+        <p className="mt-1 text-red-300/80">{error.message}</p>
+        <Button className="mt-3" size="sm" variant="outline" onClick={() => void refetch()}>
+          Try again
+        </Button>
       </div>
     );
 

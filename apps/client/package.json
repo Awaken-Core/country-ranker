@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "generate": "prisma generate",
+    "db:push": "prisma db push",
     "prebuild": "prisma generate",
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma db push && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "cross-env SKIP_ENV_VALIDATION=true tsx --test test/country-ranking.test.ts",
