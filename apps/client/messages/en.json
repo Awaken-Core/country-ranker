@@ -62,6 +62,7 @@
     "checkoutLoading": "Opening secure checkout…",
     "purchaseButton": "Purchase {count} votes for {price}",
     "advertise": "Advertise",
+    "termsAndHowItWorks": "How it works & terms",
     "reserve": "Reserve spot",
     "promoted": "Promoted",
     "castVote": "Cast your vote",
