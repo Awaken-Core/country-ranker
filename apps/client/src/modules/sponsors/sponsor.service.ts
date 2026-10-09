@@ -11,11 +11,12 @@ export class SponsorService {
     const slots = await this.repository.getActiveSlots(SPONSOR_CAPACITY);
 
     return {
-      data: slots.flatMap(({ id, sponsor }) =>
+      data: slots.flatMap(({ id, position, sponsor }) =>
         sponsor
           ? [
               {
                 slotId: id,
+                position,
                 sponsorId: sponsor.id,
                 name: sponsor.name,
                 description: sponsor.description,

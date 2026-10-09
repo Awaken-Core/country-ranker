@@ -12,6 +12,7 @@ import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 const ALL_PERMISSIONS: { key: AdminPermission; label: string; desc: string }[] = [
+  { key: "ADS_MANAGE", label: "Manage Advertisements", desc: "Create, edit, publish, and pause ad positions" },
   { key: "COUNTRIES_VIEW", label: "View Countries", desc: "Browse country catalog and stats" },
   { key: "COUNTRIES_EDIT", label: "Edit Countries", desc: "Modify names, codes, and flags" },
   { key: "VOTES_VIEW", label: "View Votes", desc: "Access real-time voting ledger and audit logs" },

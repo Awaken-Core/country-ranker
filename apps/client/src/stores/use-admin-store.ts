@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { AdminPermission, UserRole, AdminCountryItem } from "@/modules/admin/admin.types";
 
-export type AdminTab = "countries" | "votes" | "users" | "admins" | "audit-logs";
+export type AdminTab = "countries" | "votes" | "users" | "ads" | "admins" | "audit-logs";
 
 interface CountryFilters {
   search: string;

@@ -3,6 +3,7 @@ export const VISIBLE_ADS_PER_RAIL = 5;
 
 export interface SponsorAd {
   slotId: string;
+  position: number | null;
   sponsorId: string;
   name: string;
   description: string | null;

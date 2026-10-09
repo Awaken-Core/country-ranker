@@ -13,6 +13,7 @@ interface GlobalPageLayoutProps {
 
 const SPONSOR_ROTATION_MS =
   process.env.NODE_ENV === "development" ? 3_000 : 10_000;
+const SPONSOR_REFRESH_MS = 15_000;
 
 export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
   children,
@@ -46,8 +47,12 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
     }
 
     void loadSponsors();
+    const refreshInterval = window.setInterval(() => void loadSponsors(), SPONSOR_REFRESH_MS);
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      window.clearInterval(refreshInterval);
+    };
   }, []);
 
   useEffect(() => {
@@ -61,11 +66,19 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
   }, [sponsorRotationPaused]);
 
   const [leftSponsors, rightSponsors] = useMemo(() => {
-    const left = sponsors?.data.filter((_, index) => index % 2 === 0) ?? [];
-    const right = sponsors?.data.filter((_, index) => index % 2 === 1) ?? [];
+    const byPosition = new Map(
+      (sponsors?.data ?? []).flatMap((sponsor) =>
+        sponsor.position ? [[sponsor.position, sponsor] as const] : [],
+      ),
+    );
+    const setStart = sponsorRotation % 2 === 0 ? 0 : 10;
+    const adAt = (position: number) => byPosition.get(setStart + position) ?? null;
 
-    return [left, right];
-  }, [sponsors]);
+    return [
+      [adAt(1), adAt(3), adAt(5), adAt(7), adAt(9)],
+      [adAt(2), adAt(4), adAt(6), adAt(8), adAt(10)],
+    ];
+  }, [sponsors, sponsorRotation]);
 
   return (
     <div
@@ -80,7 +93,6 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
             sponsors={leftSponsors}
             available={sponsors?.available ?? 0}
             loading={sponsors === null}
-            rotation={sponsorRotation}
             onPauseChange={setSponsorRotationPaused}
             onReserve={() => setIsSponsorModalOpen(true)}
           />
@@ -105,7 +117,6 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
             sponsors={rightSponsors}
             available={sponsors?.available ?? 0}
             loading={sponsors === null}
-            rotation={sponsorRotation}
             onPauseChange={setSponsorRotationPaused}
             onReserve={() => setIsSponsorModalOpen(true)}
           />

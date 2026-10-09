@@ -11,6 +11,7 @@ import { AdminVotesTab } from "@/components/admin/tabs/admin-votes-tab";
 import { AdminUsersTab } from "@/components/admin/tabs/admin-users-tab";
 import { AdminManagementTab } from "@/components/admin/tabs/admin-management-tab";
 import { AdminAuditLogsTab } from "@/components/admin/tabs/admin-audit-logs-tab";
+import { AdminAdsTab } from "@/components/admin/tabs/admin-ads-tab";
 import { Loader2, ShieldX } from "lucide-react";
 import {Link} from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -84,6 +85,7 @@ export default function AdminDashboardPage() {
               {activeTab === "countries" && "Country Directory & Adjustments"}
               {activeTab === "votes" && "Voting Ledger & Ingestion Stream"}
               {activeTab === "users" && "User Accounts & RBAC Roles"}
+              {activeTab === "ads" && "Advertisement Positions"}
               {activeTab === "admins" && "Super Admin & Staff Management"}
               {activeTab === "audit-logs" && "System Audit Log Trail"}
             </h1>
@@ -112,6 +114,7 @@ export default function AdminDashboardPage() {
           )}
           {activeTab === "votes" && <AdminVotesTab />}
           {activeTab === "users" && <AdminUsersTab currentUserRole={adminUser.role} />}
+          {activeTab === "ads" && <AdminAdsTab userRole={adminUser.role} userPermissions={adminUser.permissions} />}
           {activeTab === "admins" && <AdminManagementTab />}
           {activeTab === "audit-logs" && <AdminAuditLogsTab />}
         </main>

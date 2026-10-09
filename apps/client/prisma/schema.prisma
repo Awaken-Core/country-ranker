@@ -15,6 +15,7 @@ enum UserRole {
 
 enum AdminPermission {
   MANAGE_ADMINS
+  ADS_MANAGE
   COUNTRIES_VIEW
   COUNTRIES_EDIT
   VOTES_VIEW
@@ -246,6 +247,7 @@ model Slots {
   sponsor   Sponsor? @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   isActive  Boolean  @default(true)
+  position  Int?     @unique
 
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
