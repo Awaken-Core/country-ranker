@@ -5,6 +5,7 @@ import { SiteHeader } from "./site-header";
 import { AdRail } from "../ads/ad-rail";
 import type { SponsorsResponse } from "../ads/ad-data";
 import BecomeSponsorModal from "../purchase/become-sponsor-modal";
+import { MobileAdMarquee } from "../ads/mobile-ad-marquee";
 
 interface GlobalPageLayoutProps {
   children: React.ReactNode;
@@ -68,10 +69,10 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
 
   return (
     <div
-      className="h-screen w-screen overflow-hidden bg-[#070707] text-[#F5F5F5] font-sans"
+      className="h-dvh w-full overflow-hidden bg-[#070707] text-[#F5F5F5] font-sans"
       suppressHydrationWarning
     >
-      <div className="h-full w-full max-w-[1880px] mx-auto px-3 sm:px-5 py-3 flex justify-between gap-5 lg:gap-8 overflow-hidden">
+      <div className="h-full w-full max-w-[1880px] mx-auto px-2 py-0 sm:px-5 sm:py-3 flex justify-between gap-5 lg:gap-8 overflow-hidden">
         {/* Left Promotional Rail (Desktop: pushed far left) */}
         <div className="hidden xl:flex shrink-0 h-full">
           <AdRail
@@ -86,9 +87,15 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
         </div>
 
         {/* Center Main Content Container (Controlled width, centered) */}
-        <main className="w-full max-w-[980px] flex flex-col gap-2 min-h-0 min-w-0 mx-auto px-3">
+        <main className="w-full max-w-[980px] flex flex-col gap-3 sm:gap-6 lg:gap-12 min-h-0 min-w-0 mx-auto px-0 sm:px-3">
           <SiteHeader />
           {children}
+          <MobileAdMarquee
+            sponsors={sponsors?.data ?? []}
+            available={sponsors?.available ?? 0}
+            loading={sponsors === null}
+            onReserve={() => setIsSponsorModalOpen(true)}
+          />
         </main>
 
         {/* Right Promotional Rail (Desktop: pushed far right) */}

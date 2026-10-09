@@ -113,7 +113,7 @@ export function HeaderAuth() {
   if (!mounted) {
     return (
       <div className="flex items-center gap-3">
-        <Button variant="outline" size="sm" className="rounded-full px-4 text-xs font-medium opacity-60">
+        <Button variant="outline" size="sm" className="rounded-full px-3 sm:px-4 text-xs font-medium opacity-60">
           {t('signIn')}
         </Button>
       </div>
@@ -129,14 +129,14 @@ export function HeaderAuth() {
       ) : session?.user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 gap-2 rounded-full pr-3 pl-1">
+            <Button variant="outline" className="h-9 gap-0 rounded-full p-1 sm:gap-2 sm:pr-3 sm:pl-1">
               <Avatar size="sm">
                 {session.user.image && (
                   <AvatarImage src={session.user.image} alt={session.user.name || "User"} />
                 )}
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
-              <span className="max-w-32 truncate text-xs">{session.user.name || session.user.email}</span>
+              <span className="hidden max-w-32 truncate text-xs sm:inline">{session.user.name || session.user.email}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -162,7 +162,7 @@ export function HeaderAuth() {
       ) : (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="rounded-full px-4 text-xs font-medium">
+            <Button variant="outline" size="sm" className="rounded-full px-3 sm:px-4 text-xs font-medium">
               {t('signIn')}
             </Button>
           </DialogTrigger>

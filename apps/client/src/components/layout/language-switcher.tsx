@@ -38,10 +38,10 @@ export function LanguageSwitcher() {
     >
       <SelectTrigger
         aria-label="Language / भाषा"
-        className="h-8 w-28 shrink-0 gap-1 border-white/10 bg-[#0A0A0A] px-2 text-xs text-zinc-300 sm:w-36"
+        className="h-9 w-9 shrink-0 gap-0 overflow-hidden rounded-full border-white/15 bg-white/[0.04] px-2 text-xs text-zinc-300 [&>svg:last-child]:hidden sm:h-8 sm:w-36 sm:gap-1 sm:rounded-md sm:bg-[#0A0A0A] sm:[&>svg:last-child]:block"
       >
         <Globe aria-hidden="true" className="size-3.5 shrink-0" />
-        <SelectValue />
+        <span className="hidden sm:inline"><SelectValue /></span>
       </SelectTrigger>
       <SelectContent className="max-h-72 min-w-(--radix-select-trigger-width) bg-[#0A0A0A] text-zinc-200">
         {locales.map((value) => (

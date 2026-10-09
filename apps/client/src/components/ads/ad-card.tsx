@@ -13,16 +13,66 @@ interface AdCardProps {
   ad: AdItem;
   className?: string;
   onReserve?: () => void;
+  compact?: boolean;
 }
 
 function getLogoUrl(logo: string) {
   return logo.startsWith("http") ? logo : `${uploadthingsURI}/f/${logo}`;
 }
 
-export function AdCard({ ad, className, onReserve }: AdCardProps) {
+export function AdCard({ ad, className, onReserve, compact = false }: AdCardProps) {
   const t = useTranslations('UI');
   const domainUrl = new URL(env?.NEXT_PUBLIC_APP_BASE_URL);
   const domain = domainUrl.hostname.split(".")[0];
+
+  if (compact) {
+    if (isAvailableAd(ad)) {
+      return (
+        <button
+          type="button"
+          onClick={onReserve}
+          className={cn(
+            "flex h-14 w-48 shrink-0 items-center gap-3 rounded-xl border border-dashed border-white/15 bg-[#101010] px-3 text-left",
+            className,
+          )}
+        >
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300">
+            <Megaphone className="size-4" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex flex-col items-start">
+            <span className="block text-xs font-semibold text-white">{t('advertise')}</span>
+            <span className="shrink-0 font-mono text-[9px] text-amber-400">{t('reserve')} →</span>
+          </span>
+        </button>
+      );
+    }
+
+    return (
+      <a
+        href={`${ad.website}/?utm_source=${domain}&utm_medium=referral&utm_campaign=sponsor_card`}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        className={cn(
+          "flex h-14 w-48 shrink-0 items-center gap-3 rounded-xl border border-white/10 px-3 text-left",
+          className,
+        )}
+        style={{
+          backgroundColor: ad.bgColor ?? "#101010",
+          color: ad.textColor ?? "#f8fafc",
+        }}
+      >
+        <span className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-zinc-800">
+          <Image src={getLogoUrl(ad.logo)} alt="" fill unoptimized sizes="40px" className="object-cover" />
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-[14px] font-medium">{ad.name}</span>
+          {/* {ad.description && (
+            <span className="mt-1 block truncate font-mono text-[9px] opacity-65">{ad.description}</span>
+          )} */}
+        </span>
+      </a>
+    );
+  }
 
   if (isAvailableAd(ad)) {
     return (
