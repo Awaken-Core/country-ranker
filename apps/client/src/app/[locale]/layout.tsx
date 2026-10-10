@@ -8,6 +8,8 @@ import {routing, rtlLocales} from '@/i18n/routing';
 import { SITE_URL, getCanonicalUrl, getAlternateLanguages } from "@/i18n/seo";
 import { cn } from "@/lib/utils";
 import Providers from "@/components/provider";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { env } from "@/lib/env";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -93,6 +95,9 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
          <NextIntlClientProvider><Providers>{children}</Providers></NextIntlClientProvider>
+         {env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+           <GoogleAnalytics gaId={env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+         )}
       </body>
     </html>
   );
