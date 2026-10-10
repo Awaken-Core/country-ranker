@@ -14,6 +14,7 @@ import {
   ChevronRight,
   LogOut,
   Sparkles,
+  Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -52,6 +53,12 @@ export function AdminSidebar({ userRole, userPermissions }: AdminSidebarProps) {
       label: "Users Directory",
       icon: <Users className="size-4 shrink-0" />,
       visible: hasPerm("USERS_VIEW"),
+    },
+    {
+      id: "ads",
+      label: "Ads Manager",
+      icon: <Megaphone className="size-4 shrink-0" />,
+      visible: hasPerm("ADS_MANAGE"),
     },
     {
       id: "admins",

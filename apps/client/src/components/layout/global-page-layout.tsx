@@ -13,6 +13,9 @@ interface GlobalPageLayoutProps {
 
 const SPONSOR_ROTATION_MS =
   process.env.NODE_ENV === "development" ? 3_000 : 10_000;
+const SPONSOR_REFRESH_MS = 15_000;
+// Development only: repeat active sponsors to preview rail rotation. Set to 0 to disable.
+const SPONSOR_PREVIEW_COUNT = 0;
 
 export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
   children,
@@ -46,8 +49,12 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
     }
 
     void loadSponsors();
+    const refreshInterval = window.setInterval(() => void loadSponsors(), SPONSOR_REFRESH_MS);
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      window.clearInterval(refreshInterval);
+    };
   }, []);
 
   useEffect(() => {
@@ -61,8 +68,22 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
   }, [sponsorRotationPaused]);
 
   const [leftSponsors, rightSponsors] = useMemo(() => {
-    const left = sponsors?.data.filter((_, index) => index % 2 === 0) ?? [];
-    const right = sponsors?.data.filter((_, index) => index % 2 === 1) ?? [];
+    const activeSponsors = sponsors?.data ?? [];
+    const previewSponsors =
+      process.env.NODE_ENV === "development" &&
+      SPONSOR_PREVIEW_COUNT > activeSponsors.length &&
+      activeSponsors.length > 0
+        ? Array.from({ length: SPONSOR_PREVIEW_COUNT }, (_, index) => {
+            const sponsor = activeSponsors[index % activeSponsors.length];
+
+            return {
+              ...sponsor,
+              slotId: `${sponsor.slotId}-preview-${index}`,
+            };
+          })
+        : activeSponsors;
+    const left = previewSponsors.filter((_, index) => index % 2 === 0);
+    const right = previewSponsors.filter((_, index) => index % 2 === 1);
 
     return [left, right];
   }, [sponsors]);
@@ -87,7 +108,7 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
         </div>
 
         {/* Center Main Content Container (Controlled width, centered) */}
-        <main className="w-full max-w-[980px] flex flex-col gap-3 sm:gap-6 lg:gap-12 min-h-0 min-w-0 mx-auto px-0 sm:px-3">
+        <main className="w-full max-w-[980px] flex flex-col gap-2 sm:gap-3.5 min-h-0 min-w-0 mx-auto px-0 sm:px-3">
           <SiteHeader />
           {children}
           <MobileAdMarquee

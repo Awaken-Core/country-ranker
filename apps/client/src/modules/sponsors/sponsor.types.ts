@@ -1,5 +1,6 @@
 export interface SponsorSlotDTO {
   slotId: string;
+  position: number | null;
   sponsorId: string;
   name: string;
   description: string | null;

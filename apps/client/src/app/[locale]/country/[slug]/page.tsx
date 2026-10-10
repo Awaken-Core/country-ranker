@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {countryName} from '@/i18n/country-name';
 import {Link} from "@/i18n/navigation";
+import { getCanonicalUrl, getAlternateLanguages } from "@/i18n/seo";
 import {
   ArrowLeft,
   ArrowRight,
@@ -24,7 +25,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const locale = await getLocale();
-  const t=await getTranslations('UI');
+  const t = await getTranslations('UI');
   const { slug } = await params;
   const country = await countryService.getCountryBySlug(slug);
 
@@ -34,9 +35,41 @@ export async function generateMetadata({
     };
   }
 
+  const localizedName = countryName(locale, country.code, country.name);
+  const title = `${localizedName} (${country.code}) - ${t('standing')} | CountryRank`;
+  const description = `${localizedName} (${country.code}) global standing and live verified community ranking on CountryRank. Upvotes: ${country.totalUpvotes.toLocaleString()}, Downvotes: ${country.totalDownvotes.toLocaleString()}.`;
+  const pagePath = `country/${country.slug}`;
+  const canonicalUrl = getCanonicalUrl(locale, pagePath);
+
   return {
-    title: `${countryName(locale, country.code, country.name)} (${country.code}) - ${t('standing')} | CountryRank`,
-    description: t('rankingDescription'),
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: getAlternateLanguages(pagePath),
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "CountryRank",
+      locale,
+      type: "article",
+      images: [
+        {
+          url: `/image/logo.png`,
+          width: 512,
+          height: 512,
+          alt: `${localizedName} Flag and Rank`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`/image/logo.png`],
+    },
   };
 }
 
@@ -53,8 +86,53 @@ export default async function CountryDetailPage({ params }: PageProps) {
   const rank = await rankingService.getCountryRank(country.id);
   const formattedRank = rank ? `#${rank}` : "--";
 
+  const localizedCountryName = countryName(locale, country.code, country.name);
+  const pageCanonical = getCanonicalUrl(locale, `country/${country.slug}`);
+
+  // Schema.org structured data (Country entity & BreadcrumbList)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": t("leaderboard"),
+            "item": getCanonicalUrl(locale),
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": t("allCountries"),
+            "item": getCanonicalUrl(locale, "countries"),
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": localizedCountryName,
+            "item": pageCanonical,
+          },
+        ],
+      },
+      {
+        "@type": "Country",
+        "@id": `${pageCanonical}#country`,
+        "name": localizedCountryName,
+        "identifier": country.code,
+        "url": pageCanonical,
+        "description": `${localizedCountryName} (${country.code}) global standing and verified community votes on CountryRank.`,
+      },
+    ],
+  };
+
   return (
     <GlobalPageLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="w-full flex-1 min-h-0 flex flex-col justify-start font-sans">
         {/* Navigation Breadcrumb */}
         <div className="shrink-0 mb-3 flex items-center justify-between text-xs">
