@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { AdCard } from "./ad-card";
@@ -7,9 +8,10 @@ import { type AdItem, type SponsorAd, VISIBLE_ADS_PER_RAIL } from "./ad-data";
 
 interface AdRailProps {
   side: "left" | "right";
-  sponsors: Array<SponsorAd | null>;
+  sponsors: SponsorAd[];
   available: number;
   loading: boolean;
+  rotation: number;
   onPauseChange: (paused: boolean) => void;
   onReserve: () => void;
   className?: string;
@@ -20,15 +22,41 @@ export function AdRail({
   sponsors,
   available,
   loading,
+  rotation,
   onPauseChange,
   onReserve,
   className,
 }: AdRailProps) {
   const reduceMotion = useReducedMotion();
+  const emptyVisiblePositions = Math.max(
+    0,
+    VISIBLE_ADS_PER_RAIL - sponsors.length,
+  );
+  const fallbackCount =
+    available > 0
+      ? Math.max(
+          emptyVisiblePositions,
+          side === "right" && sponsors.length >= VISIBLE_ADS_PER_RAIL ? 1 : 0,
+        )
+      : 0;
+  const sponsorCardCount = VISIBLE_ADS_PER_RAIL - fallbackCount;
+
+  const visibleSponsors = useMemo(() => {
+    if (sponsors.length === 0) return [];
+
+    const visibleCount = Math.min(sponsorCardCount, sponsors.length);
+    const startIndex = rotation % sponsors.length;
+
+    return Array.from({ length: visibleCount }, (_, slotIndex) => {
+      const sponsorIndex = (startIndex + slotIndex) % sponsors.length;
+      return sponsors[sponsorIndex];
+    });
+  }, [rotation, sponsorCardCount, sponsors]);
+
   const cards: Array<AdItem | null> = Array.from(
     { length: VISIBLE_ADS_PER_RAIL },
     (_, index) =>
-      sponsors[index] ??
+      visibleSponsors[index] ??
       (available > 0
         ? {
             id: "available-slot" as const,

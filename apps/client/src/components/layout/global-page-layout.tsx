@@ -14,6 +14,8 @@ interface GlobalPageLayoutProps {
 const SPONSOR_ROTATION_MS =
   process.env.NODE_ENV === "development" ? 3_000 : 10_000;
 const SPONSOR_REFRESH_MS = 15_000;
+// Development only: repeat active sponsors to preview rail rotation. Set to 0 to disable.
+const SPONSOR_PREVIEW_COUNT = 20;
 
 export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
   children,
@@ -66,19 +68,25 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
   }, [sponsorRotationPaused]);
 
   const [leftSponsors, rightSponsors] = useMemo(() => {
-    const byPosition = new Map(
-      (sponsors?.data ?? []).flatMap((sponsor) =>
-        sponsor.position ? [[sponsor.position, sponsor] as const] : [],
-      ),
-    );
-    const setStart = sponsorRotation % 2 === 0 ? 0 : 10;
-    const adAt = (position: number) => byPosition.get(setStart + position) ?? null;
+    const activeSponsors = sponsors?.data ?? [];
+    const previewSponsors =
+      process.env.NODE_ENV === "development" &&
+      SPONSOR_PREVIEW_COUNT > activeSponsors.length &&
+      activeSponsors.length > 0
+        ? Array.from({ length: SPONSOR_PREVIEW_COUNT }, (_, index) => {
+            const sponsor = activeSponsors[index % activeSponsors.length];
 
-    return [
-      [adAt(1), adAt(3), adAt(5), adAt(7), adAt(9)],
-      [adAt(2), adAt(4), adAt(6), adAt(8), adAt(10)],
-    ];
-  }, [sponsors, sponsorRotation]);
+            return {
+              ...sponsor,
+              slotId: `${sponsor.slotId}-preview-${index}`,
+            };
+          })
+        : activeSponsors;
+    const left = previewSponsors.filter((_, index) => index % 2 === 0);
+    const right = previewSponsors.filter((_, index) => index % 2 === 1);
+
+    return [left, right];
+  }, [sponsors]);
 
   return (
     <div
@@ -93,6 +101,7 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
             sponsors={leftSponsors}
             available={sponsors?.available ?? 0}
             loading={sponsors === null}
+            rotation={sponsorRotation}
             onPauseChange={setSponsorRotationPaused}
             onReserve={() => setIsSponsorModalOpen(true)}
           />
@@ -117,6 +126,7 @@ export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
             sponsors={rightSponsors}
             available={sponsors?.available ?? 0}
             loading={sponsors === null}
+            rotation={sponsorRotation}
             onPauseChange={setSponsorRotationPaused}
             onReserve={() => setIsSponsorModalOpen(true)}
           />
