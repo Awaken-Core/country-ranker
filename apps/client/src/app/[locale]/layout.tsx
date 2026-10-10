@@ -76,6 +76,9 @@ export async function generateMetadata({
         "max-image-preview": "large",
       },
     },
+    verification: {
+      google: "google644c01f42c4867e9.html",
+    },
   };
 }
 export default async function RootLayout({
