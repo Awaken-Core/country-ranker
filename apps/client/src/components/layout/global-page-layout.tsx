@@ -15,7 +15,7 @@ const SPONSOR_ROTATION_MS =
   process.env.NODE_ENV === "development" ? 3_000 : 10_000;
 const SPONSOR_REFRESH_MS = 15_000;
 // Development only: repeat active sponsors to preview rail rotation. Set to 0 to disable.
-const SPONSOR_PREVIEW_COUNT = 20;
+const SPONSOR_PREVIEW_COUNT = 0;
 
 export const GlobalPageLayout: React.FC<GlobalPageLayoutProps> = ({
   children,
